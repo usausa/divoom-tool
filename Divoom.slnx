@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Analyzers.ruleset" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Divoom.sln.DotSettings" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Divoom.Client/Divoom.Client.csproj" Id="c9bf0e26-9ecd-4ce8-b123-c1a6f57765c7" />
+  <Project Path="Divoom.Tools/Divoom.Tools.csproj" Id="18eb6103-434e-48d8-b2c5-db77ed4f6532" />
+</Solution>
