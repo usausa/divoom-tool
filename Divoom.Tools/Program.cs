@@ -14,9 +14,10 @@ var deviceCommand = new Command("device", "Get lan device list");
 deviceCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
 {
     using var serviceClient = new ServiceClient();
-    var list = await serviceClient.FindDevices();
+    var result = await serviceClient.FindDevices();
+    // TODO
 
-    foreach (var device in list)
+    foreach (var device in result.Devices)
     {
         console.WriteLine($"{device.Id} {device.MacAddress} {device.IpAddress} {device.Hardware} {device.Name}");
     }

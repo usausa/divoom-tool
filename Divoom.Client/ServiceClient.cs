@@ -7,7 +7,7 @@ public sealed class ServiceClient : IDisposable
 {
     private readonly HttpClient client = new()
     {
-        BaseAddress = new Uri("http://app.divoom-gz.com"),
+        BaseAddress = new Uri("http://app.divoom-gz.com")
     };
 
     public void Dispose()
@@ -15,12 +15,11 @@ public sealed class ServiceClient : IDisposable
         client.Dispose();
     }
 
-    public async Task<IEnumerable<DeviceInfo>> FindDevices()
+    public async Task<DeviceListResult> FindDevices()
     {
         var response = await client.GetAsync("Device/ReturnSameLANDevice").ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<DeviceListResult>(json);
-        return result?.DeviceList ?? [];
+        return JsonSerializer.Deserialize<DeviceListResult>(json)!;
     }
 }

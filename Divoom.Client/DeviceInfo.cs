@@ -19,10 +19,3 @@ public sealed class DeviceInfo
     [JsonPropertyName("DeviceMac")]
     public string MacAddress { get; set; } = default!;
 }
-
-#pragma warning disable CA1812
-internal sealed class DeviceListResult
-{
-    public DeviceInfo[] DeviceList { get; set; } = default!;
-}
-#pragma warning disable CA1812
