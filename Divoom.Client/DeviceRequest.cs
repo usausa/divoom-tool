@@ -2,7 +2,7 @@ namespace Divoom.Client;
 
 using System.Text.Json.Serialization;
 
-internal class DeviceRequest
+internal sealed class DeviceRequest
 {
     [JsonPropertyName("Command")]
     public string Command { get; set; } = default!;

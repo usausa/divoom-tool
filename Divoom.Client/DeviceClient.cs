@@ -1,5 +1,3 @@
-using System.Net.Http.Json;
-
 namespace Divoom.Client;
 
 using System.Text.Json;
