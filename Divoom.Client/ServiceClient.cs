@@ -15,7 +15,7 @@ public sealed class ServiceClient : IDisposable
         client.Dispose();
     }
 
-    public async Task<DeviceListResult> FindDevices()
+    public async Task<DeviceListResult> GetDeviceListAsync()
     {
         var response = await client.GetAsync("Device/ReturnSameLANDevice").ConfigureAwait(false);
         response.EnsureSuccessStatusCode();

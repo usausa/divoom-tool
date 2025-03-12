@@ -2,20 +2,21 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 
 using Divoom.Client;
+using Divoom.Tools;
 
 // ReSharper disable UseObjectOrCollectionInitializer
 
 var rootCommand = new RootCommand("Divoom client");
 
 //--------------------------------------------------------------------------------
-// Device
+// device
 //--------------------------------------------------------------------------------
 var deviceCommand = new Command("device", "Get lan device list");
 deviceCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
 {
-    using var serviceClient = new ServiceClient();
-    var result = await serviceClient.FindDevices();
-    // TODO
+    using var client = new ServiceClient();
+    var result = await client.GetDeviceListAsync();
+    result.EnsureSuccessStatus();
 
     foreach (var device in result.Devices)
     {
@@ -23,6 +24,34 @@ deviceCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
     }
 });
 rootCommand.Add(deviceCommand);
+
+//--------------------------------------------------------------------------------
+// current
+//--------------------------------------------------------------------------------
+var currentCommand = new Command("current", "Get current channel");
+currentCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+currentCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.GetCurrentChannelAsync();
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"{result.Index}");
+});
+rootCommand.Add(currentCommand);
+
+//--------------------------------------------------------------------------------
+// select
+//--------------------------------------------------------------------------------
+//var selectCommand = new Command("select", "Select channel");
+//selectCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+//selectCommand.AddGlobalOption(new Option<int>(["--index", "-i"], "Index") { IsRequired = true });
+//selectCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, int index) =>
+//{
+//    // TODO ?
+//    await Task.Delay(0);
+//});
+//rootCommand.Add(selectCommand);
 
 // TODO
 

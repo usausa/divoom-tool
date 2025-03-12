@@ -4,9 +4,6 @@ using System.Text.Json.Serialization;
 
 public class Result
 {
-    [JsonPropertyName("ReturnCode")]
+    [JsonPropertyName("error_code")]
     public int Code { get; set; }
-
-    [JsonPropertyName("ReturnMessage")]
-    public string Message { get; set; } = default!;
 }
