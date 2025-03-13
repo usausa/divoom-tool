@@ -72,11 +72,11 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    public async Task<Result> SetStopWatchAsync(StopWatchCommand command)
+    public async Task<Result> SetStopwatchAsync(StopwatchCommand command)
     {
-        using var request = CreateRequest(new StopWatchRequest
+        using var request = CreateRequest(new StopwatchRequest
         {
-            Command = "Tools/SetStopWatch",
+            Command = "Tools/SetStopwatch",
             Status = (int)command
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
@@ -85,11 +85,51 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    // TODO
+    public async Task<Result> SetScoreboardAsync(int blue, int red)
+    {
+        using var request = CreateRequest(new ScoreboardRequest
+        {
+            Command = "Tools/SetScoreBoard",
+            Blue = blue,
+            Red = red
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    public async Task<Result> SetNoiseStatusAsync(bool enable)
+    {
+        using var request = CreateRequest(new NoiseStatusRequest
+        {
+            Command = "Tools/SetNoiseStatus",
+            Status = enable ? 1 : 0
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
 
     //--------------------------------------------------------------------------------
     // Control
     //--------------------------------------------------------------------------------
+
+    public async Task<Result> PlayBuzzerAsync(int active, int off, int total)
+    {
+        using var request = CreateRequest(new PlayBuzzerRequest
+        {
+            Command = "Device/PlayBuzzer",
+            Active = active,
+            Off = off,
+            Total = total
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
 
     public async Task<Result> SwitchScreenAsync(bool on)
     {

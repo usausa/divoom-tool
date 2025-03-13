@@ -44,7 +44,7 @@ rootCommand.Add(currentCommand);
 //--------------------------------------------------------------------------------
 // clock
 //--------------------------------------------------------------------------------
-var clockCommand = new Command("clock", "Get clock channel");
+var clockCommand = new Command("clock", "Clock channel");
 clockCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 clockCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
@@ -53,6 +53,19 @@ clockCommand.Handler = CommandHandler.Create(static async (string host) =>
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(clockCommand);
+
+//--------------------------------------------------------------------------------
+// equalizer
+//--------------------------------------------------------------------------------
+var equalizerCommand = new Command("equalizer", "Equalizer channel");
+equalizerCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+equalizerCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetChannelIndexAsync(Channel.Equalizer);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(equalizerCommand);
 
 // TODO
 
@@ -131,7 +144,7 @@ var watchStartCommand = new Command("start", "Stopwatch start");
 watchStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetStopWatchAsync(StopWatchCommand.Start);
+    var result = await client.SetStopwatchAsync(StopwatchCommand.Start);
     result.EnsureSuccessStatus();
 });
 watchCommand.Add(watchStartCommand);
@@ -140,7 +153,7 @@ var watchStopCommand = new Command("stop", "Stopwatch stop");
 watchStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetStopWatchAsync(StopWatchCommand.Stop);
+    var result = await client.SetStopwatchAsync(StopwatchCommand.Stop);
     result.EnsureSuccessStatus();
 });
 watchCommand.Add(watchStopCommand);
@@ -149,10 +162,66 @@ var watchResetCommand = new Command("reset", "Stopwatch reset");
 watchResetCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetStopWatchAsync(StopWatchCommand.Reset);
+    var result = await client.SetStopwatchAsync(StopwatchCommand.Reset);
     result.EnsureSuccessStatus();
 });
 watchCommand.Add(watchResetCommand);
+
+//--------------------------------------------------------------------------------
+// score
+//--------------------------------------------------------------------------------
+var scoreCommand = new Command("score", "Scoreboard tool");
+scoreCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+scoreCommand.AddGlobalOption(new Option<int>(["--blue", "-b"], "Blue score") { IsRequired = true });
+scoreCommand.AddGlobalOption(new Option<int>(["--red", "-r"], "Red score") { IsRequired = true });
+scoreCommand.Handler = CommandHandler.Create(static async (string host, int blue, int red) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetScoreboardAsync(blue, red);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(scoreCommand);
+
+//--------------------------------------------------------------------------------
+// noise
+//--------------------------------------------------------------------------------
+var noiseCommand = new Command("noise", "Noise status tool");
+noiseCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(noiseCommand);
+
+var noiseStartCommand = new Command("start", "Timer start");
+noiseStartCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetNoiseStatusAsync(true);
+    result.EnsureSuccessStatus();
+});
+noiseCommand.Add(noiseStartCommand);
+
+var noiseStopCommand = new Command("stop", "Timer stop");
+noiseStopCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetNoiseStatusAsync(false);
+    result.EnsureSuccessStatus();
+});
+noiseCommand.Add(noiseStopCommand);
+
+//--------------------------------------------------------------------------------
+// buzzer
+//--------------------------------------------------------------------------------
+var buzzerCommand = new Command("buzzer", "Play buzzer");
+buzzerCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+buzzerCommand.AddGlobalOption(new Option<int>(["--active", "-a"], () => 500, "Active time"));
+buzzerCommand.AddGlobalOption(new Option<int>(["--off", "-f"], () => 500, "Off time"));
+buzzerCommand.AddGlobalOption(new Option<int>(["--total", "-t"], () => 3000, "Total time"));
+buzzerCommand.Handler = CommandHandler.Create(static async (string host, int active, int off, int total) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.PlayBuzzerAsync(active, off, total);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(buzzerCommand);
 
 // TODO
 

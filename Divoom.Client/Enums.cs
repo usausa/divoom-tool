@@ -4,11 +4,11 @@ public enum Channel
 {
     Clock,
     Cloud,
-    Visualiser,
+    Equalizer,
     Custom
 }
 
-public enum StopWatchCommand
+public enum StopwatchCommand
 {
     Stop = 0,
     Start = 1,
