@@ -22,7 +22,11 @@ public sealed class DeviceClient : IDisposable
     private static StringContent CreateRequest(object request) =>
         new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
-    public async Task<CurrentChannelResult> GetCurrentChannelAsync()
+    //--------------------------------------------------------------------------------
+    // Channel
+    //--------------------------------------------------------------------------------
+
+    public async Task<IndexResult> GetChannelIndexAsync()
     {
         using var request = CreateRequest(new DeviceRequest
         {
@@ -31,6 +35,80 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<CurrentChannelResult>(json)!;
+        return JsonSerializer.Deserialize<IndexResult>(json)!;
     }
+
+    public async Task<Result> SetChannelIndexAsync(Channel channel)
+    {
+        using var request = CreateRequest(new IndexRequest
+        {
+            Command = "Channel/SetIndex",
+            Index = (int)channel
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    // TODO
+
+    //--------------------------------------------------------------------------------
+    // Tool
+    //--------------------------------------------------------------------------------
+
+    public async Task<Result> SetTimerAsync(bool enable, int second)
+    {
+        using var request = CreateRequest(new TimerRequest
+        {
+            Command = "Tools/SetTimer",
+            Minute = second / 60,
+            Second = second % 60,
+            Status = enable ? 1 : 0
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    public async Task<Result> SetStopWatchAsync(StopWatchCommand command)
+    {
+        using var request = CreateRequest(new StopWatchRequest
+        {
+            Command = "Tools/SetStopWatch",
+            Status = (int)command
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    // TODO
+
+    //--------------------------------------------------------------------------------
+    // Control
+    //--------------------------------------------------------------------------------
+
+    public async Task<Result> SwitchScreenAsync(bool on)
+    {
+        using var request = CreateRequest(new ScreenRequest
+        {
+            Command = "Channel/OnOffScreen",
+            OnOff = on ? 1 : 0
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    // TODO
+
+    //--------------------------------------------------------------------------------
+    // Config
+    //--------------------------------------------------------------------------------
+
+    // TODO
 }
