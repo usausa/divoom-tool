@@ -36,7 +36,7 @@ currentCommand.Handler = CommandHandler.Create(static async (IConsole console, s
     var result = await client.GetChannelIndexAsync();
     result.EnsureSuccessStatus();
 
-    console.WriteLine($"{result.Index}");
+    console.WriteLine($"Index: {result.Index}");
 });
 rootCommand.Add(currentCommand);
 
@@ -180,6 +180,44 @@ noiseStopCommand.Handler = CommandHandler.Create(static async (string host) =>
     result.EnsureSuccessStatus();
 });
 noiseCommand.Add(noiseStopCommand);
+
+//--------------------------------------------------------------------------------
+// time
+//--------------------------------------------------------------------------------
+var timeCommand = new Command("time", "Get device time");
+timeCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+timeCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.GetDeviceTimeAsync();
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"UTC: {result.Utc}");
+    console.WriteLine($"LocalTime: {result.LocalTime}");
+});
+rootCommand.Add(timeCommand);
+
+//--------------------------------------------------------------------------------
+// weather
+//--------------------------------------------------------------------------------
+var weatherCommand = new Command("weather", "Get device weather");
+weatherCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+weatherCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.GetWeatherInfoAsync();
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"Weather: {result.Weather}");
+    console.WriteLine($"CurrentTemperature: {result.CurrentTemperature}");
+    console.WriteLine($"MinTemperature: {result.MinTemperature}");
+    console.WriteLine($"MaxTemperature: {result.MaxTemperature}");
+    console.WriteLine($"Pressure: {result.Pressure}");
+    console.WriteLine($"Humidity: {result.Humidity}");
+    console.WriteLine($"Visibility: {result.Visibility}");
+    console.WriteLine($"WindSpeed: {result.WindSpeed}");
+});
+rootCommand.Add(weatherCommand);
 
 //--------------------------------------------------------------------------------
 // buzzer

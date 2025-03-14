@@ -113,8 +113,32 @@ public sealed class DeviceClient : IDisposable
     }
 
     //--------------------------------------------------------------------------------
-    // Control
+    // Setting
     //--------------------------------------------------------------------------------
+
+    public async Task<TimeResult> GetDeviceTimeAsync()
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/GetDeviceTime"
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<TimeResult>(json)!;
+    }
+
+    public async Task<WeatherResult> GetWeatherInfoAsync()
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/GetWeatherInfo"
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<WeatherResult>(json)!;
+    }
 
     public async Task<Result> PlayBuzzerAsync(int active, int off, int total)
     {
@@ -148,7 +172,7 @@ public sealed class DeviceClient : IDisposable
     {
         using var request = CreateRequest(new
         {
-            Command = "Device/SetBrightness",
+            Command = "Channel/SetBrightness",
             Brightness = brightness
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
@@ -161,7 +185,7 @@ public sealed class DeviceClient : IDisposable
     {
         using var request = CreateRequest(new
         {
-            Command = "Device/SetMirrorMode",
+            Command = "Device/SetScreenRotationAngle",
             Mode = (int)rotation
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
