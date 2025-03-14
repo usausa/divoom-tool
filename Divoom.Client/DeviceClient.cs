@@ -157,6 +157,19 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
+    public async Task<Result> SetScreenRotationAngleAsync(RotationAngle rotation)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/SetMirrorMode",
+            Mode = (int)rotation
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
     public async Task<Result> SetMirrorModeAsync(bool on)
     {
         using var request = CreateRequest(new

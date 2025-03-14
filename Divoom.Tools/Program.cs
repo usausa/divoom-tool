@@ -237,6 +237,26 @@ brightnessCommand.Handler = CommandHandler.Create(static async (string host, int
 rootCommand.Add(brightnessCommand);
 
 //--------------------------------------------------------------------------------
+// rotation
+//--------------------------------------------------------------------------------
+var rotationCommand = new Command("rotation", "Set rotation");
+rotationCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rotationCommand.AddGlobalOption(new Option<int>(["--rotation", "-r"], "Rotation") { IsRequired = true });
+rotationCommand.Handler = CommandHandler.Create(static async (string host, int rotation) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetScreenRotationAngleAsync(rotation switch
+        {
+            90 => RotationAngle.Rotate90,
+            180 => RotationAngle.Rotate180,
+            270 => RotationAngle.Rotate270,
+            _ => 0
+        });
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(rotationCommand);
+
+//--------------------------------------------------------------------------------
 // mirror
 //--------------------------------------------------------------------------------
 var mirrorCommand = new Command("mirror", "Set mirror mode");
