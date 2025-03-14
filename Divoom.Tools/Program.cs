@@ -1,4 +1,3 @@
-using System;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 
@@ -81,31 +80,6 @@ rootCommand.Add(equalizerCommand);
 //    await Task.Delay(0);
 //});
 //rootCommand.Add(selectCommand);
-
-//--------------------------------------------------------------------------------
-// screen
-//--------------------------------------------------------------------------------
-var screenCommand = new Command("screen", "Screen switch");
-screenCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-rootCommand.Add(screenCommand);
-
-var screenOnCommand = new Command("on", "Screen on");
-screenOnCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DeviceClient(host);
-    var result = await client.SwitchScreenAsync(true);
-    result.EnsureSuccessStatus();
-});
-screenCommand.Add(screenOnCommand);
-
-var screenOffCommand = new Command("off", "Screen off");
-screenOffCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DeviceClient(host);
-    var result = await client.SwitchScreenAsync(false);
-    result.EnsureSuccessStatus();
-});
-screenCommand.Add(screenOffCommand);
 
 //--------------------------------------------------------------------------------
 // timer
@@ -222,6 +196,95 @@ buzzerCommand.Handler = CommandHandler.Create(static async (string host, int act
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(buzzerCommand);
+
+//--------------------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------------------
+var screenCommand = new Command("screen", "Screen switch");
+screenCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(screenCommand);
+
+var screenOnCommand = new Command("on", "Screen on");
+screenOnCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SwitchScreenAsync(true);
+    result.EnsureSuccessStatus();
+});
+screenCommand.Add(screenOnCommand);
+
+var screenOffCommand = new Command("off", "Screen off");
+screenOffCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SwitchScreenAsync(false);
+    result.EnsureSuccessStatus();
+});
+screenCommand.Add(screenOffCommand);
+
+//--------------------------------------------------------------------------------
+// brightness
+//--------------------------------------------------------------------------------
+var brightnessCommand = new Command("brightness", "Set brightness");
+brightnessCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+brightnessCommand.AddGlobalOption(new Option<int>(["--brightness", "-b"], "Brightness") { IsRequired = true });
+brightnessCommand.Handler = CommandHandler.Create(static async (string host, int brightness) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetBrightnessAsync(brightness);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(brightnessCommand);
+
+//--------------------------------------------------------------------------------
+// mirror
+//--------------------------------------------------------------------------------
+var mirrorCommand = new Command("mirror", "Set mirror mode");
+mirrorCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(mirrorCommand);
+
+var mirrorOnCommand = new Command("on", "Mirror mode on");
+mirrorOnCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetMirrorModeAsync(true);
+    result.EnsureSuccessStatus();
+});
+mirrorCommand.Add(mirrorOnCommand);
+
+var mirrorOffCommand = new Command("off", "Mirror mode off");
+mirrorOffCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetMirrorModeAsync(false);
+    result.EnsureSuccessStatus();
+});
+mirrorCommand.Add(mirrorOffCommand);
+
+//--------------------------------------------------------------------------------
+// highlight
+//--------------------------------------------------------------------------------
+var highlightCommand = new Command("highlight", "Set highlight mode");
+highlightCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(highlightCommand);
+
+var highlightOnCommand = new Command("on", "Highlight mode on");
+highlightOnCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetHighlightModeAsync(true);
+    result.EnsureSuccessStatus();
+});
+highlightCommand.Add(highlightOnCommand);
+
+var highlightOffCommand = new Command("off", "Highlight mode off");
+highlightOffCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetHighlightModeAsync(false);
+    result.EnsureSuccessStatus();
+});
+highlightCommand.Add(highlightOffCommand);
 
 // TODO
 

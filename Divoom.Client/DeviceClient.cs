@@ -144,6 +144,45 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
+    public async Task<Result> SetBrightnessAsync(int brightness)
+    {
+        using var request = CreateRequest(new BrightnessRequest
+        {
+            Command = "Device/SetBrightness",
+            Brightness = brightness
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    public async Task<Result> SetMirrorModeAsync(bool on)
+    {
+        using var request = CreateRequest(new MirrorModeRequest
+        {
+            Command = "Device/SetMirrorMode",
+            Mode = on ? 1 : 0
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    public async Task<Result> SetHighlightModeAsync(bool on)
+    {
+        using var request = CreateRequest(new HighlightModeRequest
+        {
+            Command = "Device/SetHighLightMode",
+            Mode = on ? 1 : 0
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
     // TODO
 
     //--------------------------------------------------------------------------------

@@ -64,3 +64,21 @@ internal sealed class ScreenRequest : DeviceRequest
     [JsonPropertyName("OnOff")]
     public int OnOff { get; set; }
 }
+
+internal sealed class BrightnessRequest : DeviceRequest
+{
+    [JsonPropertyName("Brightness")]
+    public int Brightness { get; set; }
+}
+
+internal sealed class MirrorModeRequest : DeviceRequest
+{
+    [JsonPropertyName("Mode")]
+    public int Mode { get; set; }
+}
+
+internal sealed class HighlightModeRequest : DeviceRequest
+{
+    [JsonPropertyName("Mode")]
+    public int Mode { get; set; }
+}
