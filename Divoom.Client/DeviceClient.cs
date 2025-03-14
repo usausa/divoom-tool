@@ -28,7 +28,7 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<IndexResult> GetChannelIndexAsync()
     {
-        using var request = CreateRequest(new DeviceRequest
+        using var request = CreateRequest(new
         {
             Command = "Channel/GetIndex"
         });
@@ -40,10 +40,10 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SetChannelIndexAsync(Channel channel)
     {
-        using var request = CreateRequest(new IndexRequest
+        using var request = CreateRequest(new
         {
             Command = "Channel/SetIndex",
-            Index = (int)channel
+            SelectIndex = (int)channel
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -59,7 +59,7 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SetTimerAsync(bool enable, int second)
     {
-        using var request = CreateRequest(new TimerRequest
+        using var request = CreateRequest(new
         {
             Command = "Tools/SetTimer",
             Minute = second / 60,
@@ -74,7 +74,7 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SetStopwatchAsync(StopwatchCommand command)
     {
-        using var request = CreateRequest(new StopwatchRequest
+        using var request = CreateRequest(new
         {
             Command = "Tools/SetStopwatch",
             Status = (int)command
@@ -87,11 +87,11 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SetScoreboardAsync(int blue, int red)
     {
-        using var request = CreateRequest(new ScoreboardRequest
+        using var request = CreateRequest(new
         {
             Command = "Tools/SetScoreBoard",
-            Blue = blue,
-            Red = red
+            BlueScore = blue,
+            RedScore = red
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -101,10 +101,10 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SetNoiseStatusAsync(bool enable)
     {
-        using var request = CreateRequest(new NoiseStatusRequest
+        using var request = CreateRequest(new
         {
             Command = "Tools/SetNoiseStatus",
-            Status = enable ? 1 : 0
+            NoiseStatus = enable ? 1 : 0
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -118,12 +118,12 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> PlayBuzzerAsync(int active, int off, int total)
     {
-        using var request = CreateRequest(new PlayBuzzerRequest
+        using var request = CreateRequest(new
         {
             Command = "Device/PlayBuzzer",
-            Active = active,
-            Off = off,
-            Total = total
+            ActiveTimeInCycle = active,
+            OffTimeInCycle = off,
+            PlayTotalTime = total
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -133,7 +133,7 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SwitchScreenAsync(bool on)
     {
-        using var request = CreateRequest(new ScreenRequest
+        using var request = CreateRequest(new
         {
             Command = "Channel/OnOffScreen",
             OnOff = on ? 1 : 0
@@ -146,7 +146,7 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SetBrightnessAsync(int brightness)
     {
-        using var request = CreateRequest(new BrightnessRequest
+        using var request = CreateRequest(new
         {
             Command = "Device/SetBrightness",
             Brightness = brightness
@@ -159,7 +159,7 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SetMirrorModeAsync(bool on)
     {
-        using var request = CreateRequest(new MirrorModeRequest
+        using var request = CreateRequest(new
         {
             Command = "Device/SetMirrorMode",
             Mode = on ? 1 : 0
@@ -172,7 +172,7 @@ public sealed class DeviceClient : IDisposable
 
     public async Task<Result> SetHighlightModeAsync(bool on)
     {
-        using var request = CreateRequest(new HighlightModeRequest
+        using var request = CreateRequest(new
         {
             Command = "Device/SetHighLightMode",
             Mode = on ? 1 : 0
