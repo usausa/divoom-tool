@@ -14,6 +14,15 @@ public class IndexResult : Result
     public int Index { get; set; }
 }
 
+public class ClockResult : Result
+{
+    [JsonPropertyName("ClockId")]
+    public int ClockId { get; set; }
+
+    [JsonPropertyName("Brightness")]
+    public int Brightness { get; set; }
+}
+
 public class TimeResult : Result
 {
     [JsonPropertyName("UTCTime")]

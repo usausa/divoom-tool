@@ -53,6 +53,28 @@ clockCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(clockCommand);
 
+var clockInfoCommand = new Command("info", "Clock info");
+clockInfoCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.GetClockInfoAsync();
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"ClockId: {result.ClockId}");
+    console.WriteLine($"Brightness: {result.Brightness}");
+});
+clockCommand.Add(clockInfoCommand);
+
+var clockSelectCommand = new Command("select", "Clock select");
+clockSelectCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
+clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int id) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SelectClockIdAsync(id);
+    result.EnsureSuccessStatus();
+});
+clockCommand.Add(clockSelectCommand);
+
 //--------------------------------------------------------------------------------
 // equalizer
 //--------------------------------------------------------------------------------
@@ -82,6 +104,19 @@ rootCommand.Add(equalizerCommand);
 //rootCommand.Add(selectCommand);
 
 //--------------------------------------------------------------------------------
+// monitor
+//--------------------------------------------------------------------------------
+var monitorCommand = new Command("monitor", "Clock channel");
+monitorCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+monitorCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SelectClockIdAsync(625);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(monitorCommand);
+
+//--------------------------------------------------------------------------------
 // timer
 //--------------------------------------------------------------------------------
 var timerCommand = new Command("timer", "Timer tool");
@@ -89,7 +124,7 @@ timerCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRe
 rootCommand.Add(timerCommand);
 
 var timerStartCommand = new Command("start", "Timer start");
-timerStartCommand.AddGlobalOption(new Option<int>(["--second", "-s"], "Second") { IsRequired = true });
+timerStartCommand.AddOption(new Option<int>(["--second", "-s"], "Second") { IsRequired = true });
 timerStartCommand.Handler = CommandHandler.Create(static async (string host, int second) =>
 {
     using var client = new DeviceClient(host);
@@ -146,8 +181,8 @@ watchCommand.Add(watchResetCommand);
 //--------------------------------------------------------------------------------
 var scoreCommand = new Command("score", "Scoreboard tool");
 scoreCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-scoreCommand.AddGlobalOption(new Option<int>(["--blue", "-b"], "Blue score") { IsRequired = true });
-scoreCommand.AddGlobalOption(new Option<int>(["--red", "-r"], "Red score") { IsRequired = true });
+scoreCommand.AddOption(new Option<int>(["--blue", "-b"], "Blue score") { IsRequired = true });
+scoreCommand.AddOption(new Option<int>(["--red", "-r"], "Red score") { IsRequired = true });
 scoreCommand.Handler = CommandHandler.Create(static async (string host, int blue, int red) =>
 {
     using var client = new DeviceClient(host);
@@ -186,7 +221,7 @@ noiseCommand.Add(noiseStopCommand);
 //--------------------------------------------------------------------------------
 var timeCommand = new Command("time", "Get device time");
 timeCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-timeCommand.AddGlobalOption(new Option<string>(["--time", "-t"], "Local time"));
+timeCommand.AddOption(new Option<string>(["--time", "-t"], "Local time"));
 timeCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, string time) =>
 {
     using var client = new DeviceClient(host);
@@ -235,9 +270,9 @@ rootCommand.Add(weatherCommand);
 //--------------------------------------------------------------------------------
 var buzzerCommand = new Command("buzzer", "Play buzzer");
 buzzerCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-buzzerCommand.AddGlobalOption(new Option<int>(["--active", "-a"], () => 500, "Active time"));
-buzzerCommand.AddGlobalOption(new Option<int>(["--off", "-f"], () => 500, "Off time"));
-buzzerCommand.AddGlobalOption(new Option<int>(["--total", "-t"], () => 3000, "Total time"));
+buzzerCommand.AddOption(new Option<int>(["--active", "-a"], () => 500, "Active time"));
+buzzerCommand.AddOption(new Option<int>(["--off", "-f"], () => 500, "Off time"));
+buzzerCommand.AddOption(new Option<int>(["--total", "-t"], () => 3000, "Total time"));
 buzzerCommand.Handler = CommandHandler.Create(static async (string host, int active, int off, int total) =>
 {
     using var client = new DeviceClient(host);
@@ -276,7 +311,7 @@ screenCommand.Add(screenOffCommand);
 //--------------------------------------------------------------------------------
 var brightnessCommand = new Command("brightness", "Set brightness");
 brightnessCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-brightnessCommand.AddGlobalOption(new Option<int>(["--value", "-v"], "Brightness") { IsRequired = true });
+brightnessCommand.AddOption(new Option<int>(["--value", "-v"], "Brightness") { IsRequired = true });
 brightnessCommand.Handler = CommandHandler.Create(static async (string host, int value) =>
 {
     using var client = new DeviceClient(host);
@@ -290,7 +325,7 @@ rootCommand.Add(brightnessCommand);
 //--------------------------------------------------------------------------------
 var rotationCommand = new Command("rotation", "Set rotation");
 rotationCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-rotationCommand.AddGlobalOption(new Option<int>(["--rotation", "-r"], "Rotation") { IsRequired = true });
+rotationCommand.AddOption(new Option<int>(["--rotation", "-r"], "Rotation") { IsRequired = true });
 rotationCommand.Handler = CommandHandler.Create(static async (string host, int rotation) =>
 {
     using var client = new DeviceClient(host);
@@ -360,9 +395,9 @@ highlightCommand.Add(highlightOffCommand);
 //--------------------------------------------------------------------------------
 var whiteCommand = new Command("white", "Set white");
 whiteCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-whiteCommand.AddGlobalOption(new Option<int>(["--red", "-r"], "Red") { IsRequired = true });
-whiteCommand.AddGlobalOption(new Option<int>(["--green", "-g"], "Green") { IsRequired = true });
-whiteCommand.AddGlobalOption(new Option<int>(["--blue", "-b"], "Blue") { IsRequired = true });
+whiteCommand.AddOption(new Option<int>(["--red", "-r"], "Red") { IsRequired = true });
+whiteCommand.AddOption(new Option<int>(["--green", "-g"], "Green") { IsRequired = true });
+whiteCommand.AddOption(new Option<int>(["--blue", "-b"], "Blue") { IsRequired = true });
 whiteCommand.Handler = CommandHandler.Create(static async (string host, int red, int green, int blue) =>
 {
     using var client = new DeviceClient(host);
@@ -412,8 +447,8 @@ rootCommand.Add(configCommand);
 //--------------------------------------------------------------------------------
 var areaCommand = new Command("area", "Set area");
 areaCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-areaCommand.AddGlobalOption(new Option<double>(["--lon", "-n"], "Longitude") { IsRequired = true });
-areaCommand.AddGlobalOption(new Option<double>(["--lat", "-t"], "Latitude") { IsRequired = true });
+areaCommand.AddOption(new Option<double>(["--lon", "-n"], "Longitude") { IsRequired = true });
+areaCommand.AddOption(new Option<double>(["--lat", "-t"], "Latitude") { IsRequired = true });
 areaCommand.Handler = CommandHandler.Create(static async (string host, double lon, double lat) =>
 {
     using var client = new DeviceClient(host);
@@ -427,7 +462,7 @@ rootCommand.Add(areaCommand);
 //--------------------------------------------------------------------------------
 var timezoneCommand = new Command("timezone", "Set timezone");
 timezoneCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-timezoneCommand.AddGlobalOption(new Option<string>(["--value", "-v"], "Timezone") { IsRequired = true });
+timezoneCommand.AddOption(new Option<string>(["--value", "-v"], "Timezone") { IsRequired = true });
 timezoneCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
 {
     using var client = new DeviceClient(host);
@@ -441,7 +476,7 @@ rootCommand.Add(timezoneCommand);
 //--------------------------------------------------------------------------------
 var temperatureCommand = new Command("temperature", "Set temperature mode");
 temperatureCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-temperatureCommand.AddGlobalOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("c", "f"));
+temperatureCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("c", "f"));
 temperatureCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
 {
     using var client = new DeviceClient(host);
@@ -459,7 +494,7 @@ rootCommand.Add(temperatureCommand);
 //--------------------------------------------------------------------------------
 var hourCommand = new Command("hour", "Set hour mode");
 hourCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-hourCommand.AddGlobalOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("12", "24"));
+hourCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("12", "24"));
 hourCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
 {
     using var client = new DeviceClient(host);

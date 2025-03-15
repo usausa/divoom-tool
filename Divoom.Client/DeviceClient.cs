@@ -51,7 +51,34 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    // TODO
+    //--------------------------------------------------------------------------------
+    // Clock
+    //--------------------------------------------------------------------------------
+
+    public async Task<ClockResult> GetClockInfoAsync()
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/GetClockInfo"
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ClockResult>(json)!;
+    }
+
+    public async Task<Result> SelectClockIdAsync(int id)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/SetClockSelectId",
+            ClockId = id
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
 
     //--------------------------------------------------------------------------------
     // Tool
