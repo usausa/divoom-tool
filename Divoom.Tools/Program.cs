@@ -265,11 +265,11 @@ screenCommand.Add(screenOffCommand);
 //--------------------------------------------------------------------------------
 var brightnessCommand = new Command("brightness", "Set brightness");
 brightnessCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-brightnessCommand.AddGlobalOption(new Option<int>(["--brightness", "-b"], "Brightness") { IsRequired = true });
-brightnessCommand.Handler = CommandHandler.Create(static async (string host, int brightness) =>
+brightnessCommand.AddGlobalOption(new Option<int>(["--value", "-v"], "Brightness") { IsRequired = true });
+brightnessCommand.Handler = CommandHandler.Create(static async (string host, int value) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetBrightnessAsync(brightness);
+    var result = await client.SetBrightnessAsync(value);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(brightnessCommand);
@@ -344,7 +344,141 @@ highlightOffCommand.Handler = CommandHandler.Create(static async (string host) =
 });
 highlightCommand.Add(highlightOffCommand);
 
+//--------------------------------------------------------------------------------
+// white
+//--------------------------------------------------------------------------------
+var whiteCommand = new Command("white", "Set white");
+whiteCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+whiteCommand.AddGlobalOption(new Option<int>(["--red", "-r"], "Red") { IsRequired = true });
+whiteCommand.AddGlobalOption(new Option<int>(["--green", "-g"], "Green") { IsRequired = true });
+whiteCommand.AddGlobalOption(new Option<int>(["--blue", "-b"], "Blue") { IsRequired = true });
+whiteCommand.Handler = CommandHandler.Create(static async (string host, int red, int green, int blue) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetWhiteBalanceAsync(red, blue, green);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(whiteCommand);
+
+//--------------------------------------------------------------------------------
+// config
+//--------------------------------------------------------------------------------
+var configCommand = new Command("config", "Get all config");
+configCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+configCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.GetAllConfigAsync();
+    result.EnsureSuccessStatus();
+
+    // TODO
+    console.WriteLine($"Brightness: {result.Brightness}");
+    console.WriteLine($"Rotation: {result.Rotation}");
+    console.WriteLine($"ClockTime: {result.ClockTime}");
+    console.WriteLine($"GalleryTime: {result.GalleryTime}");
+    console.WriteLine($"SingleGalleyTime: {result.SingleGalleyTime}");
+    console.WriteLine($"PowerOnChannelId: {result.PowerOnChannelId}");
+    console.WriteLine($"GalleryShowTime: {result.GalleryShowTime}");
+    console.WriteLine($"CurrentClockId: {result.CurrentClockId}");
+    console.WriteLine($"Time24: {result.Time24}");
+    console.WriteLine($"TemperatureMode: {result.TemperatureMode}");
+    console.WriteLine($"GyrateAngle: {result.GyrateAngle}");
+    console.WriteLine($"Mirror: {result.Mirror}");
+    console.WriteLine($"LightSwitch: {result.LightSwitch}");
+});
+rootCommand.Add(configCommand);
+
+//--------------------------------------------------------------------------------
+// area
+//--------------------------------------------------------------------------------
+var areaCommand = new Command("area", "Set area");
+areaCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+areaCommand.AddGlobalOption(new Option<double>(["--lon", "-n"], "Longitude") { IsRequired = true });
+areaCommand.AddGlobalOption(new Option<double>(["--lat", "-t"], "Latitude") { IsRequired = true });
+areaCommand.Handler = CommandHandler.Create(static async (string host, double lon, double lat) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.ConfigLogAndLatAsync(lon, lat);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(areaCommand);
+
+//--------------------------------------------------------------------------------
+// timezone
+//--------------------------------------------------------------------------------
+var timezoneCommand = new Command("timezone", "Set timezone");
+timezoneCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+timezoneCommand.AddGlobalOption(new Option<string>(["--value", "-v"], "Timezone") { IsRequired = true });
+timezoneCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.ConfigTimeZoneAsync(value);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(timezoneCommand);
+
+//--------------------------------------------------------------------------------
+// utc
+//--------------------------------------------------------------------------------
+
 // TODO
+
+//--------------------------------------------------------------------------------
+// temperature
+//--------------------------------------------------------------------------------
+var temperatureCommand = new Command("temperature", "Set temperature mode");
+temperatureCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+temperatureCommand.AddGlobalOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("c", "f"));
+temperatureCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.ConfigTemperatureModeAsync(value switch
+    {
+        "f" => TemperatureMode.Fahrenheit,
+        _ => TemperatureMode.Celsius
+    });
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(temperatureCommand);
+
+//--------------------------------------------------------------------------------
+// hour
+//--------------------------------------------------------------------------------
+var hourCommand = new Command("hour", "Set hour mode");
+hourCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+hourCommand.AddGlobalOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("12", "24"));
+hourCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.ConfigHourModeAsync(value switch
+    {
+        "24" => HourMode.Hour24,
+        _ => HourMode.Hour12
+    });
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(hourCommand);
+
+//--------------------------------------------------------------------------------
+// text
+//--------------------------------------------------------------------------------
+
+// TODO
+
+//--------------------------------------------------------------------------------
+// clear
+//--------------------------------------------------------------------------------
+var clearCommand = new Command("clear", "Set clear");
+clearCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+clearCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.ClearHttpTextAsync();
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(clearCommand);
+
+// TODO image
 
 //--------------------------------------------------------------------------------
 // Run

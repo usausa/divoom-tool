@@ -220,10 +220,108 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    // TODO
+    public async Task<Result> SetWhiteBalanceAsync(int r, int g, int b)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/SetWhiteBalance",
+            RValue = r,
+            GValue = g,
+            BValue = b
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    public async Task<ConfigResult> GetAllConfigAsync()
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/GetAllConf"
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ConfigResult>(json)!;
+    }
+
+    public async Task<Result> ConfigLogAndLatAsync(double lon, double lat)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Sys/LogAndLat",
+            Longitude = lon,
+            Latitude = lat
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    public async Task<Result> ConfigTimeZoneAsync(string tz)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Sys/TimeZone",
+            TimeZoneValue = tz
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    // TODO utc
+
+    public async Task<Result> ConfigTemperatureModeAsync(TemperatureMode mode)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/SetDisTempMode",
+            Mode = (int)mode
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    public async Task<Result> ConfigHourModeAsync(HourMode mode)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/SetTime24Flag",
+            Mode = (int)mode
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
 
     //--------------------------------------------------------------------------------
-    // Config
+    // Text
+    //--------------------------------------------------------------------------------
+
+    // TODO
+
+    public async Task<Result> ClearHttpTextAsync()
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/ClearHttpText"
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    //--------------------------------------------------------------------------------
+    // Image
     //--------------------------------------------------------------------------------
 
     // TODO

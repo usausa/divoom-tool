@@ -15,6 +15,18 @@ public enum StopwatchCommand
     Reset = 2
 }
 
+public enum TemperatureMode
+{
+    Celsius = 0,
+    Fahrenheit = 1
+}
+
+public enum HourMode
+{
+    Hour12 = 0,
+    Hour24 = 1
+}
+
 public enum RotationAngle
 {
     None = 0,

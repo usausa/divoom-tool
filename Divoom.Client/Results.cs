@@ -49,3 +49,48 @@ public class WeatherResult : Result
     [JsonPropertyName("WindSpeed")]
     public double WindSpeed { get; set; }
 }
+
+public class ConfigResult : Result
+{
+    [JsonPropertyName("Weather")]
+    public string Weather { get; set; } = default!;
+
+    [JsonPropertyName("Brightness")]
+    public int Brightness { get; set; }
+
+    [JsonPropertyName("RotationFlag")]
+    public int Rotation { get; set; }
+
+    [JsonPropertyName("ClockTime")]
+    public int ClockTime { get; set; }
+
+    [JsonPropertyName("GalleryTime")]
+    public int GalleryTime { get; set; }
+
+    [JsonPropertyName("SingleGalleyTime")]
+    public int SingleGalleyTime { get; set; }
+
+    [JsonPropertyName("PowerOnChannelId")]
+    public int PowerOnChannelId { get; set; }
+
+    [JsonPropertyName("GalleryShowTimeFlag")]
+    public int GalleryShowTime { get; set; }
+
+    [JsonPropertyName("CurClockId")]
+    public int CurrentClockId { get; set; }
+
+    [JsonPropertyName("Time24Flag")]
+    public int Time24 { get; set; }
+
+    [JsonPropertyName("TemperatureMode")]
+    public int TemperatureMode { get; set; }
+
+    [JsonPropertyName("GyrateAngle")]
+    public int GyrateAngle { get; set; }
+
+    [JsonPropertyName("MirrorFlag")]
+    public int Mirror { get; set; }
+
+    [JsonPropertyName("LightSwitch")]
+    public int LightSwitch { get; set; }
+}
