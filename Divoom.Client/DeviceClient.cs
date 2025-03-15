@@ -81,6 +81,23 @@ public sealed class DeviceClient : IDisposable
     }
 
     //--------------------------------------------------------------------------------
+    // Equalizer
+    //--------------------------------------------------------------------------------
+
+    public async Task<Result> SelectEqualizerIdAsync(int index)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/SetEqPosition",
+            EqPosition = index
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    //--------------------------------------------------------------------------------
     // Tool
     //--------------------------------------------------------------------------------
 

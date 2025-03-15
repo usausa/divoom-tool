@@ -88,6 +88,16 @@ equalizerCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(equalizerCommand);
 
+var equalizerSelectCommand = new Command("select", "Equalizer select");
+equalizerSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Index") { IsRequired = true });
+equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SelectEqualizerIdAsync(index);
+    result.EnsureSuccessStatus();
+});
+equalizerCommand.Add(equalizerSelectCommand);
+
 // TODO
 
 //--------------------------------------------------------------------------------
