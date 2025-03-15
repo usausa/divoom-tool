@@ -57,7 +57,7 @@ public sealed class DeviceClient : IDisposable
     // Tool
     //--------------------------------------------------------------------------------
 
-    public async Task<Result> SetTimerAsync(bool enable, int second)
+    public async Task<Result> TimerToolAsync(bool enable, int second)
     {
         using var request = CreateRequest(new
         {
@@ -72,7 +72,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    public async Task<Result> SetStopwatchAsync(StopwatchCommand command)
+    public async Task<Result> StopwatchToolAsync(StopwatchCommand command)
     {
         using var request = CreateRequest(new
         {
@@ -85,7 +85,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    public async Task<Result> SetScoreboardAsync(int blue, int red)
+    public async Task<Result> ScoreboardToolAsync(int blue, int red)
     {
         using var request = CreateRequest(new
         {
@@ -99,7 +99,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    public async Task<Result> SetNoiseStatusAsync(bool enable)
+    public async Task<Result> NoiseToolAsync(bool enable)
     {
         using var request = CreateRequest(new
         {
@@ -181,7 +181,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    public async Task<Result> SetScreenRotationAngleAsync(RotationAngle rotation)
+    public async Task<Result> SetScreenRotationAsync(RotationAngle rotation)
     {
         using var request = CreateRequest(new
         {
@@ -274,7 +274,18 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    // TODO utc
+    public async Task<Result> ConfigSystemTimeAsync(DateTimeOffset utc)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/SetUTC",
+            Utc = utc.ToUnixTimeSeconds()
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
 
     public async Task<Result> ConfigTemperatureModeAsync(TemperatureMode mode)
     {
@@ -308,7 +319,7 @@ public sealed class DeviceClient : IDisposable
 
     // TODO
 
-    public async Task<Result> ClearHttpTextAsync()
+    public async Task<Result> ClearTextAsync()
     {
         using var request = CreateRequest(new
         {

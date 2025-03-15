@@ -93,7 +93,7 @@ timerStartCommand.AddGlobalOption(new Option<int>(["--second", "-s"], "Second") 
 timerStartCommand.Handler = CommandHandler.Create(static async (string host, int second) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetTimerAsync(true, second);
+    var result = await client.TimerToolAsync(true, second);
     result.EnsureSuccessStatus();
 });
 timerCommand.Add(timerStartCommand);
@@ -102,7 +102,7 @@ var timerStopCommand = new Command("stop", "Timer stop");
 timerStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetTimerAsync(false, 0);
+    var result = await client.TimerToolAsync(false, 0);
     result.EnsureSuccessStatus();
 });
 timerCommand.Add(timerStopCommand);
@@ -118,7 +118,7 @@ var watchStartCommand = new Command("start", "Stopwatch start");
 watchStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetStopwatchAsync(StopwatchCommand.Start);
+    var result = await client.StopwatchToolAsync(StopwatchCommand.Start);
     result.EnsureSuccessStatus();
 });
 watchCommand.Add(watchStartCommand);
@@ -127,7 +127,7 @@ var watchStopCommand = new Command("stop", "Stopwatch stop");
 watchStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetStopwatchAsync(StopwatchCommand.Stop);
+    var result = await client.StopwatchToolAsync(StopwatchCommand.Stop);
     result.EnsureSuccessStatus();
 });
 watchCommand.Add(watchStopCommand);
@@ -136,7 +136,7 @@ var watchResetCommand = new Command("reset", "Stopwatch reset");
 watchResetCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetStopwatchAsync(StopwatchCommand.Reset);
+    var result = await client.StopwatchToolAsync(StopwatchCommand.Reset);
     result.EnsureSuccessStatus();
 });
 watchCommand.Add(watchResetCommand);
@@ -151,7 +151,7 @@ scoreCommand.AddGlobalOption(new Option<int>(["--red", "-r"], "Red score") { IsR
 scoreCommand.Handler = CommandHandler.Create(static async (string host, int blue, int red) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetScoreboardAsync(blue, red);
+    var result = await client.ScoreboardToolAsync(blue, red);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(scoreCommand);
@@ -167,7 +167,7 @@ var noiseStartCommand = new Command("start", "Timer start");
 noiseStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetNoiseStatusAsync(true);
+    var result = await client.NoiseToolAsync(true);
     result.EnsureSuccessStatus();
 });
 noiseCommand.Add(noiseStartCommand);
@@ -176,7 +176,7 @@ var noiseStopCommand = new Command("stop", "Timer stop");
 noiseStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetNoiseStatusAsync(false);
+    var result = await client.NoiseToolAsync(false);
     result.EnsureSuccessStatus();
 });
 noiseCommand.Add(noiseStopCommand);
@@ -186,14 +186,25 @@ noiseCommand.Add(noiseStopCommand);
 //--------------------------------------------------------------------------------
 var timeCommand = new Command("time", "Get device time");
 timeCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-timeCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
+timeCommand.AddGlobalOption(new Option<string>(["--time", "-t"], "Local time"));
+timeCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, string time) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.GetDeviceTimeAsync();
-    result.EnsureSuccessStatus();
+    if (String.IsNullOrEmpty(time))
+    {
+        var result = await client.GetDeviceTimeAsync();
+        result.EnsureSuccessStatus();
 
-    console.WriteLine($"UTC: {result.Utc}");
-    console.WriteLine($"LocalTime: {result.LocalTime}");
+        console.WriteLine($"UTC: {result.Utc}");
+        console.WriteLine($"LocalTime: {result.LocalTime}");
+    }
+    else
+    {
+        var utc = time == "auto" ? DateTimeOffset.UtcNow : DateTimeOffset.Parse(time).ToUniversalTime();
+
+        var result = await client.ConfigSystemTimeAsync(utc);
+        result.EnsureSuccessStatus();
+    }
 });
 rootCommand.Add(timeCommand);
 
@@ -283,7 +294,7 @@ rotationCommand.AddGlobalOption(new Option<int>(["--rotation", "-r"], "Rotation"
 rotationCommand.Handler = CommandHandler.Create(static async (string host, int rotation) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.SetScreenRotationAngleAsync(rotation switch
+    var result = await client.SetScreenRotationAsync(rotation switch
         {
             90 => RotationAngle.Rotate90,
             180 => RotationAngle.Rotate180,
@@ -371,20 +382,28 @@ configCommand.Handler = CommandHandler.Create(static async (IConsole console, st
     var result = await client.GetAllConfigAsync();
     result.EnsureSuccessStatus();
 
-    // TODO
     console.WriteLine($"Brightness: {result.Brightness}");
-    console.WriteLine($"Rotation: {result.Rotation}");
+    var rotation = (RotationAngle)result.Rotation switch
+    {
+        RotationAngle.Rotate90 => 90,
+        RotationAngle.Rotate180 => 180,
+        RotationAngle.Rotate270 => 270,
+        _ => 0
+    };
+    console.WriteLine($"Rotation: {rotation}");
     console.WriteLine($"ClockTime: {result.ClockTime}");
     console.WriteLine($"GalleryTime: {result.GalleryTime}");
     console.WriteLine($"SingleGalleyTime: {result.SingleGalleyTime}");
     console.WriteLine($"PowerOnChannelId: {result.PowerOnChannelId}");
     console.WriteLine($"GalleryShowTime: {result.GalleryShowTime}");
     console.WriteLine($"CurrentClockId: {result.CurrentClockId}");
-    console.WriteLine($"Time24: {result.Time24}");
-    console.WriteLine($"TemperatureMode: {result.TemperatureMode}");
+    console.WriteLine($"HourMode: {(HourMode)result.Time24}");
+    console.WriteLine($"TemperatureMode: {(TemperatureMode)result.TemperatureMode}");
     console.WriteLine($"GyrateAngle: {result.GyrateAngle}");
-    console.WriteLine($"Mirror: {result.Mirror}");
-    console.WriteLine($"LightSwitch: {result.LightSwitch}");
+    var mirror = result.Mirror == 1 ? "enable" : "disable";
+    console.WriteLine($"Mirror: {mirror}");
+    var lightSwitch = result.LightSwitch == 1 ? "on" : "off";
+    console.WriteLine($"LightSwitch: {lightSwitch}");
 });
 rootCommand.Add(configCommand);
 
@@ -416,12 +435,6 @@ timezoneCommand.Handler = CommandHandler.Create(static async (string host, strin
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(timezoneCommand);
-
-//--------------------------------------------------------------------------------
-// utc
-//--------------------------------------------------------------------------------
-
-// TODO
 
 //--------------------------------------------------------------------------------
 // temperature
@@ -473,7 +486,7 @@ clearCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRe
 clearCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
-    var result = await client.ClearHttpTextAsync();
+    var result = await client.ClearTextAsync();
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(clearCommand);
