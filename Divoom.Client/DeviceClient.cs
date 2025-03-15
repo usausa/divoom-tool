@@ -81,6 +81,23 @@ public sealed class DeviceClient : IDisposable
     }
 
     //--------------------------------------------------------------------------------
+    // Cloud
+    //--------------------------------------------------------------------------------
+
+    public async Task<Result> SelectCloudIndexAsync(CloudIndex index)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/CloudIndex",
+            CustomPageIndex = (int)index
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    //--------------------------------------------------------------------------------
     // Equalizer
     //--------------------------------------------------------------------------------
 
@@ -90,6 +107,23 @@ public sealed class DeviceClient : IDisposable
         {
             Command = "Channel/SetEqPosition",
             EqPosition = index
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    //--------------------------------------------------------------------------------
+    // Custom
+    //--------------------------------------------------------------------------------
+
+    public async Task<Result> SelectCustomPageAsync(int index)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/SetCustomPageIndex",
+            CustomPageIndex = index
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();

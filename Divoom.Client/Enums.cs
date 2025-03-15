@@ -2,10 +2,18 @@ namespace Divoom.Client;
 
 public enum Channel
 {
-    Clock,
-    Cloud,
-    Equalizer,
-    Custom
+    Clock = 0,
+    Cloud = 1,
+    Equalizer = 2,
+    Custom = 3
+}
+
+public enum CloudIndex
+{
+    Recommend = 0,
+    Favourite = 1,
+    Subscribe = 2,
+    Album = 3
 }
 
 public enum StopwatchCommand

@@ -76,6 +76,29 @@ clockSelectCommand.Handler = CommandHandler.Create(static async (string host, in
 clockCommand.Add(clockSelectCommand);
 
 //--------------------------------------------------------------------------------
+// cloud
+//--------------------------------------------------------------------------------
+var cloudCommand = new Command("cloud", "Cloud channel");
+cloudCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+cloudCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetChannelIndexAsync(Channel.Cloud);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(cloudCommand);
+
+var cloudSelectCommand = new Command("select", "Cloud select");
+cloudSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Page index") { IsRequired = true });
+cloudSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SelectCloudIndexAsync((CloudIndex)index);
+    result.EnsureSuccessStatus();
+});
+cloudCommand.Add(cloudSelectCommand);
+
+//--------------------------------------------------------------------------------
 // equalizer
 //--------------------------------------------------------------------------------
 var equalizerCommand = new Command("equalizer", "Equalizer channel");
@@ -89,7 +112,7 @@ equalizerCommand.Handler = CommandHandler.Create(static async (string host) =>
 rootCommand.Add(equalizerCommand);
 
 var equalizerSelectCommand = new Command("select", "Equalizer select");
-equalizerSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Index") { IsRequired = true });
+equalizerSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Equalizer index") { IsRequired = true });
 equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
 {
     using var client = new DeviceClient(host);
@@ -98,20 +121,28 @@ equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host
 });
 equalizerCommand.Add(equalizerSelectCommand);
 
-// TODO
+//--------------------------------------------------------------------------------
+// custom
+//--------------------------------------------------------------------------------
+var customCommand = new Command("custom", "Custom channel");
+customCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+customCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SetChannelIndexAsync(Channel.Custom);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(customCommand);
 
-//--------------------------------------------------------------------------------
-// select
-//--------------------------------------------------------------------------------
-//var selectCommand = new Command("select", "Select channel");
-//selectCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-//selectCommand.AddGlobalOption(new Option<int>(["--index", "-i"], "Index") { IsRequired = true });
-//selectCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, int index) =>
-//{
-//    // TODO ?
-//    await Task.Delay(0);
-//});
-//rootCommand.Add(selectCommand);
+var customSelectCommand = new Command("select", "Custom select");
+customSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Page index") { IsRequired = true });
+customSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SelectCustomPageAsync(index);
+    result.EnsureSuccessStatus();
+});
+customCommand.Add(customSelectCommand);
 
 //--------------------------------------------------------------------------------
 // monitor
