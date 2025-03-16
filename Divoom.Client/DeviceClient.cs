@@ -392,10 +392,65 @@ public sealed class DeviceClient : IDisposable
     }
 
     //--------------------------------------------------------------------------------
-    // Text
+    // Draw
     //--------------------------------------------------------------------------------
 
+    public async Task<PictureIdResult> GetPictureIdAsync()
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/GetHttpGifId"
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<PictureIdResult>(json)!;
+    }
+
+    public async Task<Result> ResetPictureIdAsync()
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/ResetHttpGifId"
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
     // TODO
+    public async Task<Result> SendTextAsync(
+        int id,
+        int x,
+        int y,
+        int width,
+        int font,
+        string text,
+        string color,
+        int align = 1,
+        int dir = 0,
+        int speed = 0)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/SendHttpText",
+            TextId = id,
+            x,
+            y,
+            dir,
+            font,
+            TextWidth = width,
+            speed,
+            TextString = text,
+            color,
+            align
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
 
     public async Task<Result> ClearTextAsync()
     {
@@ -408,10 +463,6 @@ public sealed class DeviceClient : IDisposable
         var json = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<Result>(json)!;
     }
-
-    //--------------------------------------------------------------------------------
-    // Image
-    //--------------------------------------------------------------------------------
 
     // TODO
 }

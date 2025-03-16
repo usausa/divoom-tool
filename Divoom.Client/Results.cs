@@ -103,3 +103,9 @@ public class ConfigResult : Result
     [JsonPropertyName("LightSwitch")]
     public int LightSwitch { get; set; }
 }
+
+public class PictureIdResult : Result
+{
+    [JsonPropertyName("PicId")]
+    public int PictureId { get; set; }
+}
