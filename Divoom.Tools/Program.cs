@@ -4,6 +4,8 @@ using System.CommandLine.NamingConventionBinder;
 using Divoom.Client;
 using Divoom.Tools;
 
+using SkiaSharp;
+
 // ReSharper disable UseObjectOrCollectionInitializer
 
 var rootCommand = new RootCommand("Divoom client");
@@ -53,7 +55,7 @@ clockCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(clockCommand);
 
-var clockInfoCommand = new Command("info", "Clock info");
+var clockInfoCommand = new Command("info", "Show clock information");
 clockInfoCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
 {
     using var client = new DeviceClient(host);
@@ -65,7 +67,7 @@ clockInfoCommand.Handler = CommandHandler.Create(static async (IConsole console,
 });
 clockCommand.Add(clockInfoCommand);
 
-var clockSelectCommand = new Command("select", "Clock select");
+var clockSelectCommand = new Command("select", "Select clock");
 clockSelectCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
 clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int id) =>
 {
@@ -88,7 +90,7 @@ cloudCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(cloudCommand);
 
-var cloudSelectCommand = new Command("select", "Cloud select");
+var cloudSelectCommand = new Command("select", "Select cloud page");
 cloudSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Page index") { IsRequired = true });
 cloudSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
 {
@@ -111,7 +113,7 @@ equalizerCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(equalizerCommand);
 
-var equalizerSelectCommand = new Command("select", "Equalizer select");
+var equalizerSelectCommand = new Command("select", "Select equalizer");
 equalizerSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Equalizer index") { IsRequired = true });
 equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
 {
@@ -134,7 +136,7 @@ customCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(customCommand);
 
-var customSelectCommand = new Command("select", "Custom select");
+var customSelectCommand = new Command("select", "Select custom page");
 customSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Page index") { IsRequired = true });
 customSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
 {
@@ -157,6 +159,8 @@ monitorCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(monitorCommand);
 
+// TODO Update?
+
 //--------------------------------------------------------------------------------
 // timer
 //--------------------------------------------------------------------------------
@@ -164,7 +168,7 @@ var timerCommand = new Command("timer", "Timer tool");
 timerCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 rootCommand.Add(timerCommand);
 
-var timerStartCommand = new Command("start", "Timer start");
+var timerStartCommand = new Command("start", "Start timer");
 timerStartCommand.AddOption(new Option<int>(["--second", "-s"], "Second") { IsRequired = true });
 timerStartCommand.Handler = CommandHandler.Create(static async (string host, int second) =>
 {
@@ -174,7 +178,7 @@ timerStartCommand.Handler = CommandHandler.Create(static async (string host, int
 });
 timerCommand.Add(timerStartCommand);
 
-var timerStopCommand = new Command("stop", "Timer stop");
+var timerStopCommand = new Command("stop", "Stop timer");
 timerStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
@@ -190,7 +194,7 @@ var watchCommand = new Command("watch", "Stopwatch tool");
 watchCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 rootCommand.Add(watchCommand);
 
-var watchStartCommand = new Command("start", "Stopwatch start");
+var watchStartCommand = new Command("start", "Start stopwatch");
 watchStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
@@ -199,7 +203,7 @@ watchStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 watchCommand.Add(watchStartCommand);
 
-var watchStopCommand = new Command("stop", "Stopwatch stop");
+var watchStopCommand = new Command("stop", "Stop stopwatch");
 watchStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
@@ -208,7 +212,7 @@ watchStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 watchCommand.Add(watchStopCommand);
 
-var watchResetCommand = new Command("reset", "Stopwatch reset");
+var watchResetCommand = new Command("reset", "Reset stopwatch");
 watchResetCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
@@ -239,7 +243,7 @@ var noiseCommand = new Command("noise", "Noise status tool");
 noiseCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 rootCommand.Add(noiseCommand);
 
-var noiseStartCommand = new Command("start", "Timer start");
+var noiseStartCommand = new Command("start", "Start timer");
 noiseStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
@@ -248,7 +252,7 @@ noiseStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 noiseCommand.Add(noiseStartCommand);
 
-var noiseStopCommand = new Command("stop", "Timer stop");
+var noiseStopCommand = new Command("stop", "Stop tomer");
 noiseStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
@@ -436,7 +440,7 @@ highlightCommand.Add(highlightOffCommand);
 //--------------------------------------------------------------------------------
 var whiteCommand = new Command("white", "Set white");
 whiteCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-whiteCommand.AddOption(new Option<int>(["--red", "-r"], "Red") { IsRequired = true });
+whiteCommand.AddOption(new Option<int>(["--color", "-r"], "Red") { IsRequired = true });
 whiteCommand.AddOption(new Option<int>(["--green", "-g"], "Green") { IsRequired = true });
 whiteCommand.AddOption(new Option<int>(["--blue", "-b"], "Blue") { IsRequired = true });
 whiteCommand.Handler = CommandHandler.Create(static async (string host, int red, int green, int blue) =>
@@ -551,23 +555,159 @@ rootCommand.Add(hourCommand);
 //--------------------------------------------------------------------------------
 // text
 //--------------------------------------------------------------------------------
+var textCommand = new Command("text", "Text tool");
+textCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(textCommand);
 
-// TODO
+var textDrawCommand = new Command("draw", "Draw text");
+textDrawCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["-x"], "Start x") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["-y"], "Start y") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["--width", "-w"], "Text area width") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["--font", "-f"], "Font id") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--color", "-c"], "Font color") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--text", "-t"], "Text string") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--ali", "-a"], () => "l", "Text alignment") { IsRequired = true }.FromAmong("l", "m", "r"));
+textDrawCommand.AddOption(new Option<string>(["--dir", "-d"], () => "l", "Scroll direction") { IsRequired = true }.FromAmong("l", "r"));
+textDrawCommand.AddOption(new Option<int>(["--speed", "-s"], () => 0, "Font id"));
+textDrawCommand.Handler = CommandHandler.Create(static async (string host, int id, int x, int y, int width, int font, string color, string text, string alignment, string direction, int speed) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.SendTextAsync(
+        id,
+        x,
+        y,
+        width,
+        font,
+        color.StartsWith('#') ? color : "#" + color,
+        text,
+        alignment == "m" ? TextAlignment.Middle : alignment == "r" ? TextAlignment.Right : TextAlignment.Left,
+        direction == "r" ? TextDirection.Right : TextDirection.Left,
+        speed);
+    result.EnsureSuccessStatus();
+});
+textCommand.Add(textDrawCommand);
 
-//--------------------------------------------------------------------------------
-// clear
-//--------------------------------------------------------------------------------
-var clearCommand = new Command("clear", "Set clear");
-clearCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-clearCommand.Handler = CommandHandler.Create(static async (string host) =>
+var textClearCommand = new Command("clear", "Clear text");
+textClearCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DeviceClient(host);
     var result = await client.ClearTextAsync();
     result.EnsureSuccessStatus();
 });
-rootCommand.Add(clearCommand);
+textCommand.Add(textClearCommand);
 
-// TODO image
+//--------------------------------------------------------------------------------
+// image
+//--------------------------------------------------------------------------------
+var imageCommand = new Command("image", "Image tool");
+imageCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(imageCommand);
+
+var imageResetCommand = new Command("reset", "Reset image id");
+imageResetCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.ResetPictureIdAsync();
+    result.EnsureSuccessStatus();
+});
+imageCommand.Add(imageResetCommand);
+
+var imageIdCommand = new Command("id", "Get image id");
+imageIdCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
+{
+    using var client = new DeviceClient(host);
+    var result = await client.GetPictureIdAsync();
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"Id: {result.PictureId}");
+});
+imageCommand.Add(imageIdCommand);
+
+var imageDrawCommand = new Command("draw", "Draw image");
+imageDrawCommand.AddOption(new Option<int?>(["--id", "-i"], "Id"));
+imageDrawCommand.AddOption(new Option<string>(["--file", "-f"], "File") { IsRequired = true });
+imageDrawCommand.Handler = CommandHandler.Create(static async (string host, int? id, string file) =>
+{
+    using var client = new DeviceClient(host);
+
+    if (!id.HasValue)
+    {
+        var idResult = await client.GetPictureIdAsync();
+        idResult.EnsureSuccessStatus();
+        id = idResult.PictureId;
+    }
+
+    await using var stream = File.OpenRead(file);
+    using var bitmap = SKBitmap.Decode(stream);
+    var buffer = new byte[bitmap.Width * bitmap.Height * 3];
+    for (var y = 0; y < bitmap.Height; y++)
+    {
+        for (var x = 0; x < bitmap.Width; x++)
+        {
+            var span = buffer.AsSpan(((y * bitmap.Height) + x) * 3);
+            var c = bitmap.GetPixel(x, y);
+            span[0] = c.Red;
+            span[1] = c.Green;
+            span[2] = c.Blue;
+        }
+    }
+    var data = Convert.ToBase64String(buffer);
+
+    var result = await client.SendImageAsync(id.Value, bitmap.Width, data);
+    result.EnsureSuccessStatus();
+});
+imageCommand.Add(imageDrawCommand);
+
+var imageFillCommand = new Command("fill", "Fill image");
+imageFillCommand.AddOption(new Option<int?>(["--id", "-i"], "Id"));
+imageFillCommand.AddOption(new Option<int>(["--size", "-s"], () => 64, "Size"));
+imageFillCommand.AddOption(new Option<string>(["--color", "-c"], () => "#000000", "Color"));
+imageFillCommand.Handler = CommandHandler.Create(static async (string host, int? id, int size, string color) =>
+{
+    var c = SKColor.Parse(color);
+
+    using var client = new DeviceClient(host);
+
+    if (!id.HasValue)
+    {
+        var idResult = await client.GetPictureIdAsync();
+        idResult.EnsureSuccessStatus();
+        id = idResult.PictureId;
+    }
+
+    var buffer = new byte[size * size * 3];
+    for (var offset = 0; offset < buffer.Length; offset += 3)
+    {
+        var span = buffer.AsSpan(offset);
+        span[0] = c.Red;
+        span[1] = c.Green;
+        span[2] = c.Blue;
+    }
+    var data = Convert.ToBase64String(buffer);
+
+    var result = await client.SendImageAsync(id.Value, size, data);
+    result.EnsureSuccessStatus();
+});
+imageCommand.Add(imageFillCommand);
+
+//--------------------------------------------------------------------------------
+// display
+//--------------------------------------------------------------------------------
+
+// TODO display
+
+//--------------------------------------------------------------------------------
+// play
+//--------------------------------------------------------------------------------
+
+// TODO play single/file
+
+//--------------------------------------------------------------------------------
+// remote
+//--------------------------------------------------------------------------------
+
+// TODO remote
 
 //--------------------------------------------------------------------------------
 // Run

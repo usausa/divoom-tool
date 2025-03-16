@@ -1,5 +1,7 @@
 namespace Divoom.Client;
 
+#pragma warning disable CA1008
+
 public enum Channel
 {
     Clock = 0,
@@ -41,4 +43,17 @@ public enum RotationAngle
     Rotate90 = 1,
     Rotate180 = 2,
     Rotate270 = 3
+}
+
+public enum TextDirection
+{
+    Left = 0,
+    Right = 1
+}
+
+public enum TextAlignment
+{
+    Left = 1,
+    Middle = 2,
+    Right = 3
 }

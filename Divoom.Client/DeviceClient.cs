@@ -419,17 +419,16 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    // TODO
     public async Task<Result> SendTextAsync(
         int id,
         int x,
         int y,
         int width,
         int font,
-        string text,
         string color,
-        int align = 1,
-        int dir = 0,
+        string text,
+        TextAlignment alignment = TextAlignment.Left,
+        TextDirection direction = TextDirection.Left,
         int speed = 0)
     {
         using var request = CreateRequest(new
@@ -438,13 +437,13 @@ public sealed class DeviceClient : IDisposable
             TextId = id,
             x,
             y,
-            dir,
+            dir = (int)direction,
             font,
             TextWidth = width,
             speed,
             TextString = text,
             color,
-            align
+            align = (int)alignment
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -464,5 +463,31 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<Result>(json)!;
     }
 
-    // TODO
+    public async Task<Result> SendImageAsync(
+        int id,
+        int width,
+        string data,
+        int num = 1,
+        int offset = 0,
+        int speed = 0)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/SendHttpGif",
+            PicNum = num,
+            PicWidth = width,
+            PicOffset = offset,
+            PicID = id,
+            PicSpeed = speed,
+            PicData = data
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Result>(json)!;
+    }
+
+    // TODO Play n?
+
+    // TODO list
 }
