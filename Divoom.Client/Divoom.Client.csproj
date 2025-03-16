@@ -5,4 +5,11 @@
     <CodeAnalysisRuleSet>..\Analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>Divoom.Client</PackageId>
+    <Title>Divoom client</Title>
+    <Description>Divoom client.</Description>
+    <PackageTags>divoom hardware</PackageTags>
+  </PropertyGroup>
+
 </Project>
