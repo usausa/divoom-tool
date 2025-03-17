@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Security.Cryptography;
 
 using Divoom.Client;
 using Divoom.Tools;
@@ -16,8 +17,7 @@ var rootCommand = new RootCommand("Divoom client");
 var deviceCommand = new Command("device", "Get lan device list");
 deviceCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
 {
-    using var client = new ServiceClient();
-    var result = await client.GetDeviceListAsync();
+    var result = await DivoomClient.GetDeviceListAsync();
     result.EnsureSuccessStatus();
 
     foreach (var device in result.Devices)
@@ -34,7 +34,7 @@ var currentCommand = new Command("current", "Get current channel");
 currentCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 currentCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.GetChannelIndexAsync();
     result.EnsureSuccessStatus();
 
@@ -49,7 +49,7 @@ var clockCommand = new Command("clock", "Clock channel");
 clockCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 clockCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetChannelIndexAsync(Channel.Clock);
     result.EnsureSuccessStatus();
 });
@@ -58,7 +58,7 @@ rootCommand.Add(clockCommand);
 var clockInfoCommand = new Command("info", "Show clock information");
 clockInfoCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.GetClockInfoAsync();
     result.EnsureSuccessStatus();
 
@@ -71,7 +71,7 @@ var clockSelectCommand = new Command("select", "Select clock");
 clockSelectCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
 clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int id) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SelectClockIdAsync(id);
     result.EnsureSuccessStatus();
 });
@@ -84,7 +84,7 @@ var cloudCommand = new Command("cloud", "Cloud channel");
 cloudCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 cloudCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetChannelIndexAsync(Channel.Cloud);
     result.EnsureSuccessStatus();
 });
@@ -94,7 +94,7 @@ var cloudSelectCommand = new Command("select", "Select cloud page");
 cloudSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Page index") { IsRequired = true });
 cloudSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SelectCloudIndexAsync((CloudIndex)index);
     result.EnsureSuccessStatus();
 });
@@ -107,7 +107,7 @@ var equalizerCommand = new Command("equalizer", "Equalizer channel");
 equalizerCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 equalizerCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetChannelIndexAsync(Channel.Equalizer);
     result.EnsureSuccessStatus();
 });
@@ -117,7 +117,7 @@ var equalizerSelectCommand = new Command("select", "Select equalizer");
 equalizerSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Equalizer index") { IsRequired = true });
 equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SelectEqualizerIdAsync(index);
     result.EnsureSuccessStatus();
 });
@@ -130,7 +130,7 @@ var customCommand = new Command("custom", "Custom channel");
 customCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 customCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetChannelIndexAsync(Channel.Custom);
     result.EnsureSuccessStatus();
 });
@@ -140,7 +140,7 @@ var customSelectCommand = new Command("select", "Select custom page");
 customSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Page index") { IsRequired = true });
 customSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SelectCustomPageAsync(index);
     result.EnsureSuccessStatus();
 });
@@ -153,7 +153,7 @@ var monitorCommand = new Command("monitor", "Clock channel");
 monitorCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 monitorCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SelectClockIdAsync(625);
     result.EnsureSuccessStatus();
 });
@@ -172,7 +172,7 @@ var timerStartCommand = new Command("start", "Start timer");
 timerStartCommand.AddOption(new Option<int>(["--second", "-s"], "Second") { IsRequired = true });
 timerStartCommand.Handler = CommandHandler.Create(static async (string host, int second) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.TimerToolAsync(true, second);
     result.EnsureSuccessStatus();
 });
@@ -181,7 +181,7 @@ timerCommand.Add(timerStartCommand);
 var timerStopCommand = new Command("stop", "Stop timer");
 timerStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.TimerToolAsync(false, 0);
     result.EnsureSuccessStatus();
 });
@@ -197,7 +197,7 @@ rootCommand.Add(watchCommand);
 var watchStartCommand = new Command("start", "Start stopwatch");
 watchStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.StopwatchToolAsync(StopwatchCommand.Start);
     result.EnsureSuccessStatus();
 });
@@ -206,7 +206,7 @@ watchCommand.Add(watchStartCommand);
 var watchStopCommand = new Command("stop", "Stop stopwatch");
 watchStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.StopwatchToolAsync(StopwatchCommand.Stop);
     result.EnsureSuccessStatus();
 });
@@ -215,7 +215,7 @@ watchCommand.Add(watchStopCommand);
 var watchResetCommand = new Command("reset", "Reset stopwatch");
 watchResetCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.StopwatchToolAsync(StopwatchCommand.Reset);
     result.EnsureSuccessStatus();
 });
@@ -230,7 +230,7 @@ scoreCommand.AddOption(new Option<int>(["--blue", "-b"], "Blue score") { IsRequi
 scoreCommand.AddOption(new Option<int>(["--red", "-r"], "Red score") { IsRequired = true });
 scoreCommand.Handler = CommandHandler.Create(static async (string host, int blue, int red) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.ScoreboardToolAsync(blue, red);
     result.EnsureSuccessStatus();
 });
@@ -246,7 +246,7 @@ rootCommand.Add(noiseCommand);
 var noiseStartCommand = new Command("start", "Start timer");
 noiseStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.NoiseToolAsync(true);
     result.EnsureSuccessStatus();
 });
@@ -255,7 +255,7 @@ noiseCommand.Add(noiseStartCommand);
 var noiseStopCommand = new Command("stop", "Stop tomer");
 noiseStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.NoiseToolAsync(false);
     result.EnsureSuccessStatus();
 });
@@ -269,7 +269,7 @@ timeCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsReq
 timeCommand.AddOption(new Option<string>(["--time", "-t"], "Local time"));
 timeCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, string time) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     if (String.IsNullOrEmpty(time))
     {
         var result = await client.GetDeviceTimeAsync();
@@ -295,7 +295,7 @@ var weatherCommand = new Command("weather", "Get device weather");
 weatherCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 weatherCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.GetWeatherInfoAsync();
     result.EnsureSuccessStatus();
 
@@ -320,7 +320,7 @@ buzzerCommand.AddOption(new Option<int>(["--off", "-f"], () => 500, "Off time"))
 buzzerCommand.AddOption(new Option<int>(["--total", "-t"], () => 3000, "Total time"));
 buzzerCommand.Handler = CommandHandler.Create(static async (string host, int active, int off, int total) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.PlayBuzzerAsync(active, off, total);
     result.EnsureSuccessStatus();
 });
@@ -336,7 +336,7 @@ rootCommand.Add(screenCommand);
 var screenOnCommand = new Command("on", "Screen on");
 screenOnCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SwitchScreenAsync(true);
     result.EnsureSuccessStatus();
 });
@@ -345,7 +345,7 @@ screenCommand.Add(screenOnCommand);
 var screenOffCommand = new Command("off", "Screen off");
 screenOffCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SwitchScreenAsync(false);
     result.EnsureSuccessStatus();
 });
@@ -359,7 +359,7 @@ brightnessCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") {
 brightnessCommand.AddOption(new Option<int>(["--value", "-v"], "Brightness") { IsRequired = true });
 brightnessCommand.Handler = CommandHandler.Create(static async (string host, int value) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetBrightnessAsync(value);
     result.EnsureSuccessStatus();
 });
@@ -373,7 +373,7 @@ rotationCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { I
 rotationCommand.AddOption(new Option<int>(["--rotation", "-r"], "Rotation") { IsRequired = true });
 rotationCommand.Handler = CommandHandler.Create(static async (string host, int rotation) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetScreenRotationAsync(rotation switch
         {
             90 => RotationAngle.Rotate90,
@@ -395,7 +395,7 @@ rootCommand.Add(mirrorCommand);
 var mirrorOnCommand = new Command("on", "Mirror mode on");
 mirrorOnCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetMirrorModeAsync(true);
     result.EnsureSuccessStatus();
 });
@@ -404,7 +404,7 @@ mirrorCommand.Add(mirrorOnCommand);
 var mirrorOffCommand = new Command("off", "Mirror mode off");
 mirrorOffCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetMirrorModeAsync(false);
     result.EnsureSuccessStatus();
 });
@@ -420,7 +420,7 @@ rootCommand.Add(highlightCommand);
 var highlightOnCommand = new Command("on", "Highlight mode on");
 highlightOnCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetHighlightModeAsync(true);
     result.EnsureSuccessStatus();
 });
@@ -429,7 +429,7 @@ highlightCommand.Add(highlightOnCommand);
 var highlightOffCommand = new Command("off", "Highlight mode off");
 highlightOffCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetHighlightModeAsync(false);
     result.EnsureSuccessStatus();
 });
@@ -445,7 +445,7 @@ whiteCommand.AddOption(new Option<int>(["--green", "-g"], "Green") { IsRequired 
 whiteCommand.AddOption(new Option<int>(["--blue", "-b"], "Blue") { IsRequired = true });
 whiteCommand.Handler = CommandHandler.Create(static async (string host, int red, int green, int blue) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SetWhiteBalanceAsync(red, blue, green);
     result.EnsureSuccessStatus();
 });
@@ -458,7 +458,7 @@ var configCommand = new Command("config", "Get all config");
 configCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 configCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.GetAllConfigAsync();
     result.EnsureSuccessStatus();
 
@@ -496,7 +496,7 @@ areaCommand.AddOption(new Option<double>(["--lon", "-n"], "Longitude") { IsRequi
 areaCommand.AddOption(new Option<double>(["--lat", "-t"], "Latitude") { IsRequired = true });
 areaCommand.Handler = CommandHandler.Create(static async (string host, double lon, double lat) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.ConfigLogAndLatAsync(lon, lat);
     result.EnsureSuccessStatus();
 });
@@ -510,7 +510,7 @@ timezoneCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { I
 timezoneCommand.AddOption(new Option<string>(["--value", "-v"], "Timezone") { IsRequired = true });
 timezoneCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.ConfigTimeZoneAsync(value);
     result.EnsureSuccessStatus();
 });
@@ -524,7 +524,7 @@ temperatureCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") 
 temperatureCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("c", "f"));
 temperatureCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.ConfigTemperatureModeAsync(value switch
     {
         "f" => TemperatureMode.Fahrenheit,
@@ -542,7 +542,7 @@ hourCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsReq
 hourCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("12", "24"));
 hourCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.ConfigHourModeAsync(value switch
     {
         "24" => HourMode.Hour24,
@@ -572,7 +572,7 @@ textDrawCommand.AddOption(new Option<string>(["--dir", "-d"], () => "l", "Scroll
 textDrawCommand.AddOption(new Option<int>(["--speed", "-s"], () => 0, "Font id"));
 textDrawCommand.Handler = CommandHandler.Create(static async (string host, int id, int x, int y, int width, int font, string color, string text, string alignment, string direction, int speed) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.SendTextAsync(
         id,
         x,
@@ -591,7 +591,7 @@ textCommand.Add(textDrawCommand);
 var textClearCommand = new Command("clear", "Clear text");
 textClearCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.ClearTextAsync();
     result.EnsureSuccessStatus();
 });
@@ -607,7 +607,7 @@ rootCommand.Add(imageCommand);
 var imageResetCommand = new Command("reset", "Reset image id");
 imageResetCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.ResetPictureIdAsync();
     result.EnsureSuccessStatus();
 });
@@ -616,7 +616,7 @@ imageCommand.Add(imageResetCommand);
 var imageIdCommand = new Command("id", "Get image id");
 imageIdCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
     var result = await client.GetPictureIdAsync();
     result.EnsureSuccessStatus();
 
@@ -629,7 +629,7 @@ imageDrawCommand.AddOption(new Option<int?>(["--id", "-i"], "Id"));
 imageDrawCommand.AddOption(new Option<string>(["--file", "-f"], "File") { IsRequired = true });
 imageDrawCommand.Handler = CommandHandler.Create(static async (string host, int? id, string file) =>
 {
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
 
     if (!id.HasValue)
     {
@@ -667,7 +667,7 @@ imageFillCommand.Handler = CommandHandler.Create(static async (string host, int?
 {
     var c = SKColor.Parse(color);
 
-    using var client = new DeviceClient(host);
+    using var client = new DivoomClient(host);
 
     if (!id.HasValue)
     {
@@ -706,8 +706,51 @@ imageCommand.Add(imageFillCommand);
 //--------------------------------------------------------------------------------
 // remote
 //--------------------------------------------------------------------------------
+var remoteCommand = new Command("remote", "Remote image");
+rootCommand.Add(remoteCommand);
 
-// TODO remote
+var remoteListCommand = new Command("list", "List upload images");
+remoteListCommand.AddOption(new Option<int>(["--device", "-d"], "Device id") { IsRequired = true });
+remoteListCommand.AddOption(new Option<string>(["--mac", "-m"], "Device mac") { IsRequired = true });
+remoteListCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
+remoteListCommand.Handler = CommandHandler.Create(static async (IConsole console, int device, string mac, int page) =>
+{
+    var result = await DivoomClient.GetUploadImageListAsync(device, mac, page);
+    result.EnsureSuccessStatus();
+
+    foreach (var image in result.Images)
+    {
+        console.WriteLine($"{image.FileName} {image.FileId}");
+    }
+});
+remoteCommand.Add(remoteListCommand);
+
+var remoteLikeCommand = new Command("like", "List like images");
+remoteLikeCommand.AddOption(new Option<int>(["--device", "-d"], "Device id") { IsRequired = true });
+remoteLikeCommand.AddOption(new Option<string>(["--mac", "-m"], "Device mac") { IsRequired = true });
+remoteLikeCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
+remoteLikeCommand.Handler = CommandHandler.Create(static async (IConsole console, int device, string mac, int page) =>
+{
+    var result = await DivoomClient.GetLikeImageListAsync(device, mac, page);
+    result.EnsureSuccessStatus();
+
+    foreach (var image in result.Images)
+    {
+        console.WriteLine($"{image.FileName} {image.FileId}");
+    }
+});
+remoteCommand.Add(remoteLikeCommand);
+
+var remoteDrawCommand = new Command("draw", "Draw remote image");
+remoteDrawCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+remoteDrawCommand.AddOption(new Option<string>(["--id", "-i"], "File id") { IsRequired = true });
+remoteDrawCommand.Handler = CommandHandler.Create(static async (string host, string id) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SendRemoteAsync(id);
+    result.EnsureSuccessStatus();
+});
+remoteCommand.Add(remoteDrawCommand);
 
 //--------------------------------------------------------------------------------
 // Run

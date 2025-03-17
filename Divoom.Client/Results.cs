@@ -2,19 +2,79 @@ namespace Divoom.Client;
 
 using System.Text.Json.Serialization;
 
-public class Result
+//--------------------------------------------------------------------------------
+// Service
+//--------------------------------------------------------------------------------
+
+public class ServiceResult
+{
+    [JsonPropertyName("ReturnCode")]
+    public int Code { get; set; }
+
+    [JsonPropertyName("ReturnMessage")]
+    public string Message { get; set; } = default!;
+}
+
+public sealed class DeviceInfo
+{
+    [JsonPropertyName("DeviceId")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("Hardware")]
+    public int Hardware { get; set; }
+
+    [JsonPropertyName("DeviceName")]
+    public string Name { get; set; } = default!;
+
+    [JsonPropertyName("DevicePrivateIP")]
+    public string IpAddress { get; set; } = default!;
+
+    [JsonPropertyName("DeviceMac")]
+    public string MacAddress { get; set; } = default!;
+}
+
+#pragma warning disable CA1819
+public class DeviceListResult : ServiceResult
+{
+    [JsonPropertyName("DeviceList")]
+    public DeviceInfo[] Devices { get; set; } = default!;
+}
+#pragma warning restore CA1819
+
+public sealed class ImageInfo
+{
+    [JsonPropertyName("FileName")]
+    public string FileName { get; set; } = default!;
+
+    [JsonPropertyName("FileId")]
+    public string FileId { get; set; } = default!;
+}
+
+#pragma warning disable CA1819
+public class ImageListResult : ServiceResult
+{
+    [JsonPropertyName("ImgList")]
+    public ImageInfo[] Images { get; set; } = default!;
+}
+#pragma warning restore CA1819
+
+//--------------------------------------------------------------------------------
+// Device
+//--------------------------------------------------------------------------------
+
+public class DeviceResult
 {
     [JsonPropertyName("error_code")]
     public int Code { get; set; }
 }
 
-public class IndexResult : Result
+public class IndexResult : DeviceResult
 {
     [JsonPropertyName("SelectIndex")]
     public int Index { get; set; }
 }
 
-public class ClockResult : Result
+public class ClockResult : DeviceResult
 {
     [JsonPropertyName("ClockId")]
     public int ClockId { get; set; }
@@ -23,7 +83,7 @@ public class ClockResult : Result
     public int Brightness { get; set; }
 }
 
-public class TimeResult : Result
+public class TimeResult : DeviceResult
 {
     [JsonPropertyName("UTCTime")]
     public long Utc { get; set; }
@@ -32,7 +92,7 @@ public class TimeResult : Result
     public string LocalTime { get; set; } = default!;
 }
 
-public class WeatherResult : Result
+public class WeatherResult : DeviceResult
 {
     [JsonPropertyName("Weather")]
     public string Weather { get; set; } = default!;
@@ -59,7 +119,7 @@ public class WeatherResult : Result
     public double WindSpeed { get; set; }
 }
 
-public class ConfigResult : Result
+public class ConfigResult : DeviceResult
 {
     [JsonPropertyName("Weather")]
     public string Weather { get; set; } = default!;
@@ -104,7 +164,7 @@ public class ConfigResult : Result
     public int LightSwitch { get; set; }
 }
 
-public class PictureIdResult : Result
+public class PictureIdResult : DeviceResult
 {
     [JsonPropertyName("PicId")]
     public int PictureId { get; set; }

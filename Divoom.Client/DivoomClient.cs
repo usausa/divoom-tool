@@ -3,13 +3,13 @@ namespace Divoom.Client;
 using System.Text.Json;
 
 #pragma warning disable CA2234
-public sealed class DeviceClient : IDisposable
+public sealed class DivoomClient : IDisposable
 {
     private const string PostUrl = "post";
 
     private readonly HttpClient client = new();
 
-    public DeviceClient(string host)
+    public DivoomClient(string host)
     {
         client.BaseAddress = new Uri($"http://{host}:80");
     }
@@ -21,6 +21,51 @@ public sealed class DeviceClient : IDisposable
 
     private static StringContent CreateRequest(object request) =>
         new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+
+    //--------------------------------------------------------------------------------
+    // Service
+    //--------------------------------------------------------------------------------
+
+    private static HttpClient CreateServiceClient() => new() { BaseAddress = new("http://app.divoom-gz.com") };
+
+    public static async Task<DeviceListResult> GetDeviceListAsync()
+    {
+        using var client = CreateServiceClient();
+        var response = await client.GetAsync("Device/ReturnSameLANDevice").ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceListResult>(json)!;
+    }
+
+    public static async Task<ImageListResult> GetUploadImageListAsync(int deviceId, string mac, int page = 1)
+    {
+        using var client = CreateServiceClient();
+        using var request = CreateRequest(new
+        {
+            DeviceId = deviceId,
+            DeviceMac = mac,
+            Page = page
+        });
+        var response = await client.PostAsync("Device/GetImgUploadList", request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ImageListResult>(json)!;
+    }
+
+    public static async Task<ImageListResult> GetLikeImageListAsync(int deviceId, string mac, int page = 1)
+    {
+        using var client = CreateServiceClient();
+        using var request = CreateRequest(new
+        {
+            DeviceId = deviceId,
+            DeviceMac = mac,
+            Page = page
+        });
+        var response = await client.PostAsync("Device/GetImgLikeList", request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ImageListResult>(json)!;
+    }
 
     //--------------------------------------------------------------------------------
     // Channel
@@ -38,7 +83,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<IndexResult>(json)!;
     }
 
-    public async Task<Result> SetChannelIndexAsync(Channel channel)
+    public async Task<DeviceResult> SetChannelIndexAsync(Channel channel)
     {
         using var request = CreateRequest(new
         {
@@ -48,7 +93,7 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
     //--------------------------------------------------------------------------------
@@ -67,7 +112,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<ClockResult>(json)!;
     }
 
-    public async Task<Result> SelectClockIdAsync(int id)
+    public async Task<DeviceResult> SelectClockIdAsync(int id)
     {
         using var request = CreateRequest(new
         {
@@ -77,14 +122,14 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
     //--------------------------------------------------------------------------------
     // Cloud
     //--------------------------------------------------------------------------------
 
-    public async Task<Result> SelectCloudIndexAsync(CloudIndex index)
+    public async Task<DeviceResult> SelectCloudIndexAsync(CloudIndex index)
     {
         using var request = CreateRequest(new
         {
@@ -94,14 +139,14 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
     //--------------------------------------------------------------------------------
     // Equalizer
     //--------------------------------------------------------------------------------
 
-    public async Task<Result> SelectEqualizerIdAsync(int index)
+    public async Task<DeviceResult> SelectEqualizerIdAsync(int index)
     {
         using var request = CreateRequest(new
         {
@@ -111,14 +156,14 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
     //--------------------------------------------------------------------------------
     // Custom
     //--------------------------------------------------------------------------------
 
-    public async Task<Result> SelectCustomPageAsync(int index)
+    public async Task<DeviceResult> SelectCustomPageAsync(int index)
     {
         using var request = CreateRequest(new
         {
@@ -128,14 +173,14 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
     //--------------------------------------------------------------------------------
     // Tool
     //--------------------------------------------------------------------------------
 
-    public async Task<Result> TimerToolAsync(bool enable, int second)
+    public async Task<DeviceResult> TimerToolAsync(bool enable, int second)
     {
         using var request = CreateRequest(new
         {
@@ -147,10 +192,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> StopwatchToolAsync(StopwatchCommand command)
+    public async Task<DeviceResult> StopwatchToolAsync(StopwatchCommand command)
     {
         using var request = CreateRequest(new
         {
@@ -160,10 +205,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> ScoreboardToolAsync(int blue, int red)
+    public async Task<DeviceResult> ScoreboardToolAsync(int blue, int red)
     {
         using var request = CreateRequest(new
         {
@@ -174,10 +219,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> NoiseToolAsync(bool enable)
+    public async Task<DeviceResult> NoiseToolAsync(bool enable)
     {
         using var request = CreateRequest(new
         {
@@ -187,7 +232,7 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
     //--------------------------------------------------------------------------------
@@ -218,7 +263,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<WeatherResult>(json)!;
     }
 
-    public async Task<Result> PlayBuzzerAsync(int active, int off, int total)
+    public async Task<DeviceResult> PlayBuzzerAsync(int active, int off, int total)
     {
         using var request = CreateRequest(new
         {
@@ -230,10 +275,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> SwitchScreenAsync(bool on)
+    public async Task<DeviceResult> SwitchScreenAsync(bool on)
     {
         using var request = CreateRequest(new
         {
@@ -243,10 +288,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> SetBrightnessAsync(int brightness)
+    public async Task<DeviceResult> SetBrightnessAsync(int brightness)
     {
         using var request = CreateRequest(new
         {
@@ -256,10 +301,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> SetScreenRotationAsync(RotationAngle rotation)
+    public async Task<DeviceResult> SetScreenRotationAsync(RotationAngle rotation)
     {
         using var request = CreateRequest(new
         {
@@ -269,10 +314,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> SetMirrorModeAsync(bool on)
+    public async Task<DeviceResult> SetMirrorModeAsync(bool on)
     {
         using var request = CreateRequest(new
         {
@@ -282,10 +327,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> SetHighlightModeAsync(bool on)
+    public async Task<DeviceResult> SetHighlightModeAsync(bool on)
     {
         using var request = CreateRequest(new
         {
@@ -295,10 +340,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> SetWhiteBalanceAsync(int r, int g, int b)
+    public async Task<DeviceResult> SetWhiteBalanceAsync(int r, int g, int b)
     {
         using var request = CreateRequest(new
         {
@@ -310,7 +355,7 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
     public async Task<ConfigResult> GetAllConfigAsync()
@@ -325,7 +370,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<ConfigResult>(json)!;
     }
 
-    public async Task<Result> ConfigLogAndLatAsync(double lon, double lat)
+    public async Task<DeviceResult> ConfigLogAndLatAsync(double lon, double lat)
     {
         using var request = CreateRequest(new
         {
@@ -336,10 +381,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> ConfigTimeZoneAsync(string tz)
+    public async Task<DeviceResult> ConfigTimeZoneAsync(string tz)
     {
         using var request = CreateRequest(new
         {
@@ -349,10 +394,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> ConfigSystemTimeAsync(DateTimeOffset utc)
+    public async Task<DeviceResult> ConfigSystemTimeAsync(DateTimeOffset utc)
     {
         using var request = CreateRequest(new
         {
@@ -362,10 +407,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> ConfigTemperatureModeAsync(TemperatureMode mode)
+    public async Task<DeviceResult> ConfigTemperatureModeAsync(TemperatureMode mode)
     {
         using var request = CreateRequest(new
         {
@@ -375,10 +420,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> ConfigHourModeAsync(HourMode mode)
+    public async Task<DeviceResult> ConfigHourModeAsync(HourMode mode)
     {
         using var request = CreateRequest(new
         {
@@ -388,7 +433,7 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
     //--------------------------------------------------------------------------------
@@ -407,7 +452,7 @@ public sealed class DeviceClient : IDisposable
         return JsonSerializer.Deserialize<PictureIdResult>(json)!;
     }
 
-    public async Task<Result> ResetPictureIdAsync()
+    public async Task<DeviceResult> ResetPictureIdAsync()
     {
         using var request = CreateRequest(new
         {
@@ -416,10 +461,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> SendTextAsync(
+    public async Task<DeviceResult> SendTextAsync(
         int id,
         int x,
         int y,
@@ -448,10 +493,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> ClearTextAsync()
+    public async Task<DeviceResult> ClearTextAsync()
     {
         using var request = CreateRequest(new
         {
@@ -460,10 +505,10 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<Result> SendImageAsync(
+    public async Task<DeviceResult> SendImageAsync(
         int id,
         int width,
         string data,
@@ -484,10 +529,25 @@ public sealed class DeviceClient : IDisposable
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Result>(json)!;
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    // TODO Play n?
+    public async Task<DeviceResult> SendRemoteAsync(string fileId)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/SendRemote",
+            FileId = fileId
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
+
+    // TODO Remote
 
     // TODO list
+
+    // TODO Play n?
 }
