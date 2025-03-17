@@ -1,5 +1,6 @@
 namespace Divoom.Client;
 
+using System;
 using System.Text.Json;
 
 #pragma warning disable CA2234
@@ -74,6 +75,22 @@ public sealed class DivoomClient : IDisposable
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<ImageListResult>(json)!;
+    }
+
+    //--------------------------------------------------------------------------------
+    // Reboot
+    //--------------------------------------------------------------------------------
+
+    public async Task<IndexResult> RebootAsync()
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/SysReboot"
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<IndexResult>(json)!;
     }
 
     //--------------------------------------------------------------------------------
@@ -178,6 +195,27 @@ public sealed class DivoomClient : IDisposable
         {
             Command = "Channel/SetCustomPageIndex",
             CustomPageIndex = index
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
+
+    //--------------------------------------------------------------------------------
+    // Monitor
+    //--------------------------------------------------------------------------------
+
+    public async Task<DeviceResult> UpdatePcMonitorAsync(IEnumerable<MonitorParameter> parameters)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/UpdatePCParaInfo",
+            ScreenList = parameters.Select(static x => new
+            {
+                LcdId = default(string),
+                DispData = new[] { x.CpuUsed, x.GpuUsed, x.CpuTemperature, x.GpuTemperature, x.MemoryUsed, x.DiskTemperature }
+            })
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();

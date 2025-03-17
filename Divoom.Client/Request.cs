@@ -2,6 +2,21 @@ namespace Divoom.Client;
 
 using System.Text.Json.Serialization;
 
+public sealed class MonitorParameter
+{
+    public string CpuUsed { get; set; } = string.Empty;
+
+    public string CpuTemperature { get; set; } = string.Empty;
+
+    public string GpuUsed { get; set; } = string.Empty;
+
+    public string GpuTemperature { get; set; } = string.Empty;
+
+    public string MemoryUsed { get; set; } = string.Empty;
+
+    public string DiskTemperature { get; set; } = string.Empty;
+}
+
 public sealed class DrawItem
 {
     public int TextId { get; set; }

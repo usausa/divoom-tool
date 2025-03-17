@@ -45,6 +45,19 @@ fontCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
 rootCommand.Add(fontCommand);
 
 //--------------------------------------------------------------------------------
+// reboot
+//--------------------------------------------------------------------------------
+var rebootCommand = new Command("reboot", "Reboot");
+rebootCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rebootCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.RebootAsync();
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(rebootCommand);
+
+//--------------------------------------------------------------------------------
 // current
 //--------------------------------------------------------------------------------
 var currentCommand = new Command("current", "Get current channel");
@@ -176,7 +189,28 @@ monitorCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(monitorCommand);
 
-// TODO Update?
+var monitorUpdateCommand = new Command("update", "Update monitor");
+monitorUpdateCommand.AddOption(new Option<string>(["--data", "-d"], "Data") { IsRequired = true });
+monitorUpdateCommand.Handler = CommandHandler.Create(static async (string host, string data) =>
+{
+    var values = data.Split(',');
+
+    using var client = new DivoomClient(host);
+    var result = await client.UpdatePcMonitorAsync(
+    [
+        new MonitorParameter
+        {
+            CpuUsed = values.ElementAtOrDefault(0) ?? string.Empty,
+            GpuUsed = values.ElementAtOrDefault(1) ?? string.Empty,
+            CpuTemperature = values.ElementAtOrDefault(2) ?? string.Empty,
+            GpuTemperature = values.ElementAtOrDefault(3) ?? string.Empty,
+            MemoryUsed = values.ElementAtOrDefault(4) ?? string.Empty,
+            DiskTemperature = values.ElementAtOrDefault(5) ?? string.Empty
+        }
+    ]);
+    result.EnsureSuccessStatus();
+});
+monitorCommand.Add(monitorUpdateCommand);
 
 //--------------------------------------------------------------------------------
 // timer
