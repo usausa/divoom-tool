@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using System.Security.Cryptography;
 
 using Divoom.Client;
 using Divoom.Tools;
@@ -374,7 +373,8 @@ rotationCommand.AddOption(new Option<int>(["--rotation", "-r"], "Rotation") { Is
 rotationCommand.Handler = CommandHandler.Create(static async (string host, int rotation) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SetScreenRotationAsync(rotation switch
+    var result = await client.SetScreenRotationAsync(
+        rotation switch
         {
             90 => RotationAngle.Rotate90,
             180 => RotationAngle.Rotate180,
@@ -521,15 +521,16 @@ rootCommand.Add(timezoneCommand);
 //--------------------------------------------------------------------------------
 var temperatureCommand = new Command("temperature", "Set temperature mode");
 temperatureCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-temperatureCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("c", "f"));
+temperatureCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("c", "celsius", "f", "fahrenheit"));
 temperatureCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.ConfigTemperatureModeAsync(value switch
-    {
-        "f" => TemperatureMode.Fahrenheit,
-        _ => TemperatureMode.Celsius
-    });
+    var result = await client.ConfigTemperatureModeAsync(
+        value switch
+        {
+            "f" or "fahrenheit" => TemperatureMode.Fahrenheit,
+            _ => TemperatureMode.Celsius
+        });
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(temperatureCommand);
@@ -543,11 +544,12 @@ hourCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired 
 hourCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.ConfigHourModeAsync(value switch
-    {
-        "24" => HourMode.Hour24,
-        _ => HourMode.Hour12
-    });
+    var result = await client.ConfigHourModeAsync(
+        value switch
+        {
+            "24" => HourMode.Hour24,
+            _ => HourMode.Hour12
+        });
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(hourCommand);
@@ -567,8 +569,8 @@ textDrawCommand.AddOption(new Option<int>(["--width", "-w"], "Text area width") 
 textDrawCommand.AddOption(new Option<int>(["--font", "-f"], "Font id") { IsRequired = true });
 textDrawCommand.AddOption(new Option<string>(["--color", "-c"], "Font color") { IsRequired = true });
 textDrawCommand.AddOption(new Option<string>(["--text", "-t"], "Text string") { IsRequired = true });
-textDrawCommand.AddOption(new Option<string>(["--ali", "-a"], () => "l", "Text alignment") { IsRequired = true }.FromAmong("l", "m", "r"));
-textDrawCommand.AddOption(new Option<string>(["--dir", "-d"], () => "l", "Scroll direction") { IsRequired = true }.FromAmong("l", "r"));
+textDrawCommand.AddOption(new Option<string>(["--ali", "-a"], () => "l", "Text alignment") { IsRequired = true }.FromAmong("l", "left", "m", "middle", "r", "right"));
+textDrawCommand.AddOption(new Option<string>(["--dir", "-d"], () => "l", "Scroll direction") { IsRequired = true }.FromAmong("l", "left", "r", "right"));
 textDrawCommand.AddOption(new Option<int>(["--speed", "-s"], () => 0, "Font id"));
 textDrawCommand.Handler = CommandHandler.Create(static async (string host, int id, int x, int y, int width, int font, string color, string text, string alignment, string direction, int speed) =>
 {
@@ -581,6 +583,7 @@ textDrawCommand.Handler = CommandHandler.Create(static async (string host, int i
         font,
         color.StartsWith('#') ? color : "#" + color,
         text,
+        // TODO
         alignment == "m" ? TextAlignment.Middle : alignment == "r" ? TextAlignment.Right : TextAlignment.Left,
         direction == "r" ? TextDirection.Right : TextDirection.Left,
         speed);
@@ -692,18 +695,6 @@ imageFillCommand.Handler = CommandHandler.Create(static async (string host, int?
 imageCommand.Add(imageFillCommand);
 
 //--------------------------------------------------------------------------------
-// display
-//--------------------------------------------------------------------------------
-
-// TODO display
-
-//--------------------------------------------------------------------------------
-// play
-//--------------------------------------------------------------------------------
-
-// TODO play single/file
-
-//--------------------------------------------------------------------------------
 // remote
 //--------------------------------------------------------------------------------
 var remoteCommand = new Command("remote", "Remote image");
@@ -751,6 +742,34 @@ remoteDrawCommand.Handler = CommandHandler.Create(static async (string host, str
     result.EnsureSuccessStatus();
 });
 remoteCommand.Add(remoteDrawCommand);
+
+//--------------------------------------------------------------------------------
+// display
+//--------------------------------------------------------------------------------
+
+// TODO display
+
+//--------------------------------------------------------------------------------
+// gif
+//--------------------------------------------------------------------------------
+var gifCommand = new Command("gif", "Play gif");
+gifCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+gifCommand.AddOption(new Option<string>(["--type", "-t"], "File type") { IsRequired = true }.FromAmong("n", "net", "d", "directory", "f", "file"));
+gifCommand.AddOption(new Option<string>(["--name", "-n"], "File name") { IsRequired = true });
+gifCommand.Handler = CommandHandler.Create(static async (string host, string type, string name) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.PlayGif(
+        type switch
+        {
+            "d" or "directory" => PlayFileType.Folder,
+            "f" or "file" => PlayFileType.File,
+            _ => PlayFileType.Net
+        },
+        name);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(gifCommand);
 
 //--------------------------------------------------------------------------------
 // Run

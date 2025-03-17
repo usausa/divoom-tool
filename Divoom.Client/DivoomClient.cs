@@ -545,9 +545,19 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    // TODO Remote
-
     // TODO list
 
-    // TODO Play n?
+    public async Task<DeviceResult> PlayGif(PlayFileType fileType, string fileName)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/PlayTFGif",
+            FileType = (int)fileType,
+            FileName = fileName
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
 }
