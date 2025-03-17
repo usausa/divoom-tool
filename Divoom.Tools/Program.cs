@@ -1,7 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Text.Json;
-using System.Xml.Linq;
 
 using Divoom.Client;
 using Divoom.Tools;
@@ -585,9 +584,17 @@ textDrawCommand.Handler = CommandHandler.Create(static async (string host, int i
         font,
         color.StartsWith('#') ? color : "#" + color,
         text,
-        // TODO
-        alignment == "m" ? TextAlignment.Middle : alignment == "r" ? TextAlignment.Right : TextAlignment.Left,
-        direction == "r" ? TextDirection.Right : TextDirection.Left,
+        alignment switch
+        {
+            "m" or "middle" => TextAlignment.Middle,
+            "r" or "right" => TextAlignment.Right,
+            _ => TextAlignment.Left
+        },
+        direction switch
+        {
+            "m" or "middle" => TextDirection.Right,
+            _ => TextDirection.Left
+        },
         speed);
     result.EnsureSuccessStatus();
 });
@@ -761,8 +768,6 @@ displayCommand.Handler = CommandHandler.Create(static async (string host, string
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(displayCommand);
-
-// TODO items
 
 //--------------------------------------------------------------------------------
 // gif
