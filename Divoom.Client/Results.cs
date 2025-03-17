@@ -34,10 +34,39 @@ public sealed class DeviceInfo
 }
 
 #pragma warning disable CA1819
-public class DeviceListResult : ServiceResult
+public sealed class DeviceListResult : ServiceResult
 {
     [JsonPropertyName("DeviceList")]
     public DeviceInfo[] Devices { get; set; } = default!;
+}
+#pragma warning restore CA1819
+
+public sealed class FontInfo
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = default!;
+
+    [JsonPropertyName("width")]
+    public string Width { get; set; } = default!;
+
+    [JsonPropertyName("high")]
+    public string Height { get; set; } = default!;
+
+    [JsonPropertyName("charset")]
+    public string Chars { get; set; } = default!;
+
+    [JsonPropertyName("type")]
+    public FontType Type { get; set; }
+}
+
+#pragma warning disable CA1819
+public sealed class FontListResult : ServiceResult
+{
+    [JsonPropertyName("FontList")]
+    public FontInfo[] Fonts { get; set; } = default!;
 }
 #pragma warning restore CA1819
 
@@ -68,13 +97,13 @@ public class DeviceResult
     public int Code { get; set; }
 }
 
-public class IndexResult : DeviceResult
+public sealed class IndexResult : DeviceResult
 {
     [JsonPropertyName("SelectIndex")]
     public int Index { get; set; }
 }
 
-public class ClockResult : DeviceResult
+public sealed class ClockResult : DeviceResult
 {
     [JsonPropertyName("ClockId")]
     public int ClockId { get; set; }
@@ -83,7 +112,7 @@ public class ClockResult : DeviceResult
     public int Brightness { get; set; }
 }
 
-public class TimeResult : DeviceResult
+public sealed class TimeResult : DeviceResult
 {
     [JsonPropertyName("UTCTime")]
     public long Utc { get; set; }
@@ -92,7 +121,7 @@ public class TimeResult : DeviceResult
     public string LocalTime { get; set; } = default!;
 }
 
-public class WeatherResult : DeviceResult
+public sealed class WeatherResult : DeviceResult
 {
     [JsonPropertyName("Weather")]
     public string Weather { get; set; } = default!;
@@ -119,7 +148,7 @@ public class WeatherResult : DeviceResult
     public double WindSpeed { get; set; }
 }
 
-public class ConfigResult : DeviceResult
+public sealed class ConfigResult : DeviceResult
 {
     [JsonPropertyName("Weather")]
     public string Weather { get; set; } = default!;
@@ -164,7 +193,7 @@ public class ConfigResult : DeviceResult
     public int LightSwitch { get; set; }
 }
 
-public class PictureIdResult : DeviceResult
+public sealed class PictureIdResult : DeviceResult
 {
     [JsonPropertyName("PicId")]
     public int PictureId { get; set; }

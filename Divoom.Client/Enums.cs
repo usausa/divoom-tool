@@ -2,6 +2,12 @@ namespace Divoom.Client;
 
 #pragma warning disable CA1008
 
+public enum FontType
+{
+    None = 0,
+    CanScroll = 1
+}
+
 public enum Channel
 {
     Clock = 0,

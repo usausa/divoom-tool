@@ -28,6 +28,23 @@ deviceCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
 rootCommand.Add(deviceCommand);
 
 //--------------------------------------------------------------------------------
+// font
+//--------------------------------------------------------------------------------
+var fontCommand = new Command("font", "Get font list");
+fontCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
+{
+    var result = await DivoomClient.GetFontListAsync();
+    result.EnsureSuccessStatus();
+
+    foreach (var font in result.Fonts)
+    {
+        var scroll = font.Type == FontType.CanScroll ? "+" : "-";
+        console.WriteLine($"{font.Id} {font.Width}/{font.Height} {scroll} {font.Name} {font.Chars}");
+    }
+});
+rootCommand.Add(fontCommand);
+
+//--------------------------------------------------------------------------------
 // current
 //--------------------------------------------------------------------------------
 var currentCommand = new Command("current", "Get current channel");

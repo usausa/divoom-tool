@@ -37,6 +37,15 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceListResult>(json)!;
     }
 
+    public static async Task<FontListResult> GetFontListAsync()
+    {
+        using var client = CreateServiceClient();
+        var response = await client.GetAsync("Device/GetTimeDialFontList").ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<FontListResult>(json)!;
+    }
+
     public static async Task<ImageListResult> GetUploadImageListAsync(int deviceId, string mac, int page = 1)
     {
         using var client = CreateServiceClient();
