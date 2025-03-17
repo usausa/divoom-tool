@@ -545,7 +545,33 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    // TODO list
+    public async Task<DeviceResult> SendItemListAsync(IEnumerable<DrawItem> items)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/SendHttpItemList",
+            ItemList = items.Select(static x => new
+            {
+                x.TextId,
+                type = (int)x.Type,
+                x = x.X,
+                y = x.Y,
+                dir = (int)x.Direction,
+                font = x.Font,
+                TextWidth = x.Width,
+                TextHeight = x.Height,
+                TextString = x.Text,
+                speed = x.Speed,
+                color = x.Color,
+                update_time = x.UpdateInterval,
+                align = (int)x.Alignment
+            })
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
 
     public async Task<DeviceResult> PlayGif(PlayFileType fileType, string fileName)
     {

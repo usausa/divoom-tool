@@ -1,5 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Text.Json;
+using System.Xml.Linq;
 
 using Divoom.Client;
 using Divoom.Tools;
@@ -746,8 +748,21 @@ remoteCommand.Add(remoteDrawCommand);
 //--------------------------------------------------------------------------------
 // display
 //--------------------------------------------------------------------------------
+var displayCommand = new Command("display", "Play display");
+displayCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+displayCommand.AddOption(new Option<string>(["--file", "-f"], "File") { IsRequired = true });
+displayCommand.Handler = CommandHandler.Create(static async (string host, string file) =>
+{
+    var json = await File.ReadAllTextAsync(file);
+    var list = JsonSerializer.Deserialize<DrawItem[]>(json);
 
-// TODO display
+    using var client = new DivoomClient(host);
+    var result = await client.SendItemListAsync(list!);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(displayCommand);
+
+// TODO items
 
 //--------------------------------------------------------------------------------
 // gif
