@@ -70,6 +70,34 @@ public sealed class FontListResult : ServiceResult
 }
 #pragma warning restore CA1819
 
+#pragma warning disable CA1819
+public sealed class DialTypeResult : ServiceResult
+{
+    [JsonPropertyName("DialTypeList")]
+    public string[] Types { get; set; } = default!;
+}
+#pragma warning restore CA1819
+
+public sealed class DialInfo
+{
+    [JsonPropertyName("ClockId")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("Name")]
+    public string Name { get; set; } = default!;
+}
+
+#pragma warning disable CA1819
+public sealed class DialListResult : ServiceResult
+{
+    [JsonPropertyName("TotalNum")]
+    public int Total { get; set; }
+
+    [JsonPropertyName("DialList")]
+    public DialInfo[] Dials { get; set; } = default!;
+}
+#pragma warning restore CA1819
+
 public sealed class ImageInfo
 {
     [JsonPropertyName("FileName")]

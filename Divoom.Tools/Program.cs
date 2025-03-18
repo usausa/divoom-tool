@@ -1,3 +1,4 @@
+using System;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Text.Json;
@@ -43,6 +44,41 @@ fontCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
     }
 });
 rootCommand.Add(fontCommand);
+
+//--------------------------------------------------------------------------------
+// dial
+//--------------------------------------------------------------------------------
+var dialCommand = new Command("dial", "Get dial information");
+rootCommand.Add(dialCommand);
+
+var dialTypeCommand = new Command("type", "Get dial type");
+dialTypeCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
+{
+    var result = await DivoomClient.GetDialTypeAsync();
+    result.EnsureSuccessStatus();
+
+    foreach (var type in result.Types)
+    {
+        console.WriteLine(type);
+    }
+});
+dialCommand.Add(dialTypeCommand);
+
+var dialListCommand = new Command("list", "Get dial list");
+dialListCommand.AddOption(new Option<string>(["--type", "-t"], "Dial type") { IsRequired = true });
+dialListCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
+dialListCommand.Handler = CommandHandler.Create(static async (IConsole console, string type, int page) =>
+{
+    var result = await DivoomClient.GetDialListAsync(type, page);
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"Total: {result.Total}");
+    foreach (var dial in result.Dials)
+    {
+        console.WriteLine($"{dial.Id} {dial.Name}");
+    }
+});
+dialCommand.Add(dialListCommand);
 
 //--------------------------------------------------------------------------------
 // reboot
@@ -607,60 +643,6 @@ hourCommand.Handler = CommandHandler.Create(static async (string host, string va
 rootCommand.Add(hourCommand);
 
 //--------------------------------------------------------------------------------
-// text
-//--------------------------------------------------------------------------------
-var textCommand = new Command("text", "Text tool");
-textCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-rootCommand.Add(textCommand);
-
-var textDrawCommand = new Command("draw", "Draw text");
-textDrawCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
-textDrawCommand.AddOption(new Option<int>(["-x"], "Start x") { IsRequired = true });
-textDrawCommand.AddOption(new Option<int>(["-y"], "Start y") { IsRequired = true });
-textDrawCommand.AddOption(new Option<int>(["--width", "-w"], "Text area width") { IsRequired = true });
-textDrawCommand.AddOption(new Option<int>(["--font", "-f"], "Font id") { IsRequired = true });
-textDrawCommand.AddOption(new Option<string>(["--color", "-c"], "Font color") { IsRequired = true });
-textDrawCommand.AddOption(new Option<string>(["--text", "-t"], "Text string") { IsRequired = true });
-textDrawCommand.AddOption(new Option<string>(["--ali", "-a"], () => "l", "Text alignment") { IsRequired = true }.FromAmong("l", "left", "m", "middle", "r", "right"));
-textDrawCommand.AddOption(new Option<string>(["--dir", "-d"], () => "l", "Scroll direction") { IsRequired = true }.FromAmong("l", "left", "r", "right"));
-textDrawCommand.AddOption(new Option<int>(["--speed", "-s"], () => 0, "Font id"));
-textDrawCommand.Handler = CommandHandler.Create(static async (string host, int id, int x, int y, int width, int font, string color, string text, string alignment, string direction, int speed) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SendTextAsync(
-        id,
-        x,
-        y,
-        width,
-        font,
-        color.StartsWith('#') ? color : "#" + color,
-        text,
-        alignment switch
-        {
-            "m" or "middle" => TextAlignment.Middle,
-            "r" or "right" => TextAlignment.Right,
-            _ => TextAlignment.Left
-        },
-        direction switch
-        {
-            "m" or "middle" => TextDirection.Right,
-            _ => TextDirection.Left
-        },
-        speed);
-    result.EnsureSuccessStatus();
-});
-textCommand.Add(textDrawCommand);
-
-var textClearCommand = new Command("clear", "Clear text");
-textClearCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.ClearTextAsync();
-    result.EnsureSuccessStatus();
-});
-textCommand.Add(textClearCommand);
-
-//--------------------------------------------------------------------------------
 // image
 //--------------------------------------------------------------------------------
 var imageCommand = new Command("image", "Image tool");
@@ -802,6 +784,60 @@ remoteDrawCommand.Handler = CommandHandler.Create(static async (string host, str
     result.EnsureSuccessStatus();
 });
 remoteCommand.Add(remoteDrawCommand);
+
+//--------------------------------------------------------------------------------
+// text
+//--------------------------------------------------------------------------------
+var textCommand = new Command("text", "Text tool");
+textCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(textCommand);
+
+var textDrawCommand = new Command("draw", "Draw text");
+textDrawCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["-x"], "Start x") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["-y"], "Start y") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["--width", "-w"], "Text area width") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["--font", "-f"], "Font id") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--color", "-c"], "Font color") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--text", "-t"], "Text string") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--ali", "-a"], () => "l", "Text alignment") { IsRequired = true }.FromAmong("l", "left", "m", "middle", "r", "right"));
+textDrawCommand.AddOption(new Option<string>(["--dir", "-d"], () => "l", "Scroll direction") { IsRequired = true }.FromAmong("l", "left", "r", "right"));
+textDrawCommand.AddOption(new Option<int>(["--speed", "-s"], () => 0, "Font id"));
+textDrawCommand.Handler = CommandHandler.Create(static async (string host, int id, int x, int y, int width, int font, string color, string text, string alignment, string direction, int speed) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SendTextAsync(
+        id,
+        x,
+        y,
+        width,
+        font,
+        color.StartsWith('#') ? color : "#" + color,
+        text,
+        alignment switch
+        {
+            "m" or "middle" => TextAlignment.Middle,
+            "r" or "right" => TextAlignment.Right,
+            _ => TextAlignment.Left
+        },
+        direction switch
+        {
+            "m" or "middle" => TextDirection.Right,
+            _ => TextDirection.Left
+        },
+        speed);
+    result.EnsureSuccessStatus();
+});
+textCommand.Add(textDrawCommand);
+
+var textClearCommand = new Command("clear", "Clear text");
+textClearCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.ClearTextAsync();
+    result.EnsureSuccessStatus();
+});
+textCommand.Add(textClearCommand);
 
 //--------------------------------------------------------------------------------
 // display

@@ -47,6 +47,29 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<FontListResult>(json)!;
     }
 
+    public static async Task<DialTypeResult> GetDialTypeAsync()
+    {
+        using var client = CreateServiceClient();
+        var response = await client.GetAsync("Channel/GetDialType").ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DialTypeResult>(json)!;
+    }
+
+    public static async Task<DialListResult> GetDialListAsync(string type, int page)
+    {
+        using var client = CreateServiceClient();
+        using var request = CreateRequest(new
+        {
+            DialType = type,
+            Page = page
+        });
+        var response = await client.PostAsync("Channel/GetDialList", request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DialListResult>(json)!;
+    }
+
     public static async Task<ImageListResult> GetUploadImageListAsync(int deviceId, string mac, int page = 1)
     {
         using var client = CreateServiceClient();
@@ -511,6 +534,43 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
+    public async Task<DeviceResult> SendImageAsync(
+        int id,
+        int width,
+        string data,
+        int num = 1,
+        int offset = 0,
+        int speed = 0)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/SendHttpGif",
+            PicNum = num,
+            PicWidth = width,
+            PicOffset = offset,
+            PicID = id,
+            PicSpeed = speed,
+            PicData = data
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
+
+    public async Task<DeviceResult> SendRemoteAsync(string fileId)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Draw/SendRemote",
+            FileId = fileId
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
+
     public async Task<DeviceResult> SendTextAsync(
         int id,
         int x,
@@ -548,43 +608,6 @@ public sealed class DivoomClient : IDisposable
         using var request = CreateRequest(new
         {
             Command = "Draw/ClearHttpText"
-        });
-        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<DeviceResult>(json)!;
-    }
-
-    public async Task<DeviceResult> SendImageAsync(
-        int id,
-        int width,
-        string data,
-        int num = 1,
-        int offset = 0,
-        int speed = 0)
-    {
-        using var request = CreateRequest(new
-        {
-            Command = "Draw/SendHttpGif",
-            PicNum = num,
-            PicWidth = width,
-            PicOffset = offset,
-            PicID = id,
-            PicSpeed = speed,
-            PicData = data
-        });
-        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<DeviceResult>(json)!;
-    }
-
-    public async Task<DeviceResult> SendRemoteAsync(string fileId)
-    {
-        using var request = CreateRequest(new
-        {
-            Command = "Draw/SendRemote",
-            FileId = fileId
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
