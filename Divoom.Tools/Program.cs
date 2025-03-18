@@ -14,7 +14,7 @@ var rootCommand = new RootCommand("Divoom client");
 //--------------------------------------------------------------------------------
 // device
 //--------------------------------------------------------------------------------
-var deviceCommand = new Command("device", "Get lan device list");
+var deviceCommand = new Command("device", "Get LAN device list");
 deviceCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
 {
     var result = await DivoomClient.GetDeviceListAsync();
@@ -30,7 +30,7 @@ rootCommand.Add(deviceCommand);
 //--------------------------------------------------------------------------------
 // font
 //--------------------------------------------------------------------------------
-var fontCommand = new Command("font", "Get font list");
+var fontCommand = new Command("font", "Get supported font list");
 fontCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
 {
     var result = await DivoomClient.GetFontListAsync();
@@ -214,7 +214,7 @@ customCommand.Add(customSelectCommand);
 //--------------------------------------------------------------------------------
 // monitor
 //--------------------------------------------------------------------------------
-var monitorCommand = new Command("monitor", "Clock channel");
+var monitorCommand = new Command("monitor", "Monitor");
 monitorCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 monitorCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
@@ -329,7 +329,7 @@ var noiseCommand = new Command("noise", "Noise status tool");
 noiseCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 rootCommand.Add(noiseCommand);
 
-var noiseStartCommand = new Command("start", "Start timer");
+var noiseStartCommand = new Command("start", "Start noise tool");
 noiseStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DivoomClient(host);
@@ -338,7 +338,7 @@ noiseStartCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 noiseCommand.Add(noiseStartCommand);
 
-var noiseStopCommand = new Command("stop", "Stop tomer");
+var noiseStopCommand = new Command("stop", "Stop noise tool");
 noiseStopCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DivoomClient(host);
@@ -350,7 +350,7 @@ noiseCommand.Add(noiseStopCommand);
 //--------------------------------------------------------------------------------
 // time
 //--------------------------------------------------------------------------------
-var timeCommand = new Command("time", "Get device time");
+var timeCommand = new Command("time", "Get/Set device time");
 timeCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 timeCommand.AddOption(new Option<string>(["--time", "-t"], "Local time"));
 timeCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, string time) =>
@@ -525,7 +525,7 @@ highlightCommand.Add(highlightOffCommand);
 //--------------------------------------------------------------------------------
 // white
 //--------------------------------------------------------------------------------
-var whiteCommand = new Command("white", "Set white");
+var whiteCommand = new Command("white", "Set white balance");
 whiteCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 whiteCommand.AddOption(new Option<int>(["--color", "-r"], "Red") { IsRequired = true });
 whiteCommand.AddOption(new Option<int>(["--green", "-g"], "Green") { IsRequired = true });
@@ -841,7 +841,7 @@ textCommand.Add(textClearCommand);
 //--------------------------------------------------------------------------------
 // display
 //--------------------------------------------------------------------------------
-var displayCommand = new Command("display", "Play display");
+var displayCommand = new Command("display", "Display item list");
 displayCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 displayCommand.AddOption(new Option<string>(["--file", "-f"], "File") { IsRequired = true });
 displayCommand.Handler = CommandHandler.Create(static async (string host, string file) =>
