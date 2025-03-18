@@ -3,7 +3,7 @@
 # Install
 
 ```
-> dotnet tool install -g DivoomTool
+dotnet tool install -g DivoomTool
 ```
 
 # Usage
@@ -24,7 +24,9 @@ divoom font
 
 ### Get dial type
 
-(TODO)
+```
+divoom dial type
+```
 
 ### Get dial list
 
@@ -37,61 +39,61 @@ divoom font
 ### Get current channel
 
 ```
-divoom cunnel -h 192.168.100.101
+divoom cunnel -h 192.168.1.101
 ```
 
 ### Clock channel
 
 ```
-divoom clock -h 192.168.100.101
+divoom clock -h 192.168.1.101
 ```
 
 ```
-divoom clock info -h 192.168.100.101
+divoom clock info -h 192.168.1.101
 ```
 
 ```
-divoom clock select -h 192.168.100.101 -i 182
+divoom clock select -h 192.168.1.101 -i 182
 ```
 
 ### Cloud channel
 
 ```
-divoom cloud -h 192.168.100.101
+divoom cloud -h 192.168.1.101
 ```
 
 ```
-divoom cloud select -h 192.168.100.101 -p 1
+divoom cloud select -h 192.168.1.101 -p 1
 ```
 
 ### Equalizer channel
 
 ```
-divoom equalizer -h 192.168.100.101
+divoom equalizer -h 192.168.1.101
 ```
 
 ```
-divoom equalizer select -h 192.168.100.101 -p 1
+divoom equalizer select -h 192.168.1.101 -p 1
 ```
 
 ### Custom channel
 
 ```
-divoom custom -h 192.168.100.101
+divoom custom -h 192.168.1.101
 ```
 
 ```
-divoom custom select -h 192.168.100.101 -p 1
+divoom custom select -h 192.168.1.101 -p 1
 ```
 
 ### Monitor
 
 ```
-divoom monitor -h 192.168.100.101
+divoom monitor -h 192.168.1.101
 ```
 
 ```
-divoom monitor yodate -h 192.168.100.101 -d "50 %,10 %,60 C,35 C,40 %,45 C"
+divoom monitor yodate -h 192.168.1.101 -d "50 %,10 %,60 C,35 C,40 %,45 C"
 ```
 
 
@@ -101,41 +103,41 @@ divoom monitor yodate -h 192.168.100.101 -d "50 %,10 %,60 C,35 C,40 %,45 C"
 ### Timer tool
 
 ```
-divoom timer start -h 192.168.100.101 -s 30
+divoom timer start -h 192.168.1.101 -s 30
 ```
 
 ```
-divoom timer stop -h 192.168.100.101
+divoom timer stop -h 192.168.1.101
 ```
 
 ### Stopwatch tool
 
 ```
-divoom watch start -h 192.168.100.101
+divoom watch start -h 192.168.1.101
 ```
 
 ```
-divoom watch stop -h 192.168.100.101
+divoom watch stop -h 192.168.1.101
 ```
 
 ```
-divoom watch reset -h 192.168.100.101
+divoom watch reset -h 192.168.1.101
 ```
 
 ### Scoreboard tool
 
 ```
-divoom score -h 192.168.100.101 -b 123 -r 456
+divoom score -h 192.168.1.101 -b 123 -r 456
 ```
 
 ### Noise tool
 
 ```
-divoom noise start -h 192.168.100.101
+divoom noise start -h 192.168.1.101
 ```
 
 ```
-divoom noise stop -h 192.168.100.101
+divoom noise stop -h 192.168.1.101
 ```
 
 
@@ -144,19 +146,27 @@ divoom noise stop -h 192.168.100.101
 
 ### Reset image id
 
-(TODO)
+```
+divoom image reset -h 192.168.1.101
+```
 
 ### Get image id
 
-(TODO)
+```
+divoom image id -h 192.168.1.101
+```
 
 ### Draw image
 
-(TODO)
+```
+divoom image draw -h 192.168.1.101 -f cat.png
+```
 
 ### Fill image
 
-(TODO)
+```
+divoom image fill -h 192.168.1.101 -c #000000
+```
 
 ### List upload images
 
@@ -176,7 +186,15 @@ divoom noise stop -h 192.168.100.101
 
 ### Display item list
 
-(TODO)
+```
+divoom display -h 192.168.1.101 -f items.json
+```
+
+```json
+{
+    ...
+}
+```
 
 ### Play gif
 
@@ -192,11 +210,15 @@ divoom noise stop -h 192.168.100.101
 
 ### Get device weather
 
-(TODO)
+```
+divoom weather -h 192.168.1.101
+```
 
 ### Play buzzer
 
-(TODO)
+```
+divoom buzzer -h 192.168.1.101 -a 500 -f 500 -t 3000
+```
 
 ### Screen switch
 
@@ -229,24 +251,32 @@ divoom noise stop -h 192.168.100.101
 ### Get all config
 
 ```
-divoom config -h 192.168.100.101
+divoom config -h 192.168.1.101
 ```
 
 ### Set area
 
-(TODO)
+```
+divoom area -h 192.168.1.101 --lon 138.608 --lat 35.616
+```
 
 ### Set timezone
 
-(TODO)
+```
+divoom timezone -h 192.168.1.101 -z GMT+9
+```
 
 ### Set temperature mode
 
-(TODO)
+```
+divoom temperature -h 192.168.1.101 -m c
+```
 
 ### Set hour mode
 
-(TODO)
+```
+divoom hour -h 192.168.1.101 -m 24
+```
 
 
 
@@ -255,5 +285,5 @@ divoom config -h 192.168.100.101
 ### Reboot
 
 ```
-divoom reboot -h 192.168.100.101
+divoom reboot -h 192.168.1.101
 ```

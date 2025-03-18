@@ -594,11 +594,11 @@ rootCommand.Add(areaCommand);
 //--------------------------------------------------------------------------------
 var timezoneCommand = new Command("timezone", "Set timezone");
 timezoneCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-timezoneCommand.AddOption(new Option<string>(["--value", "-v"], "Timezone") { IsRequired = true });
-timezoneCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
+timezoneCommand.AddOption(new Option<string>(["--zone", "-z"], "Timezone") { IsRequired = true });
+timezoneCommand.Handler = CommandHandler.Create(static async (string host, string zone) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.ConfigTimeZoneAsync(value);
+    var result = await client.ConfigTimeZoneAsync(zone);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(timezoneCommand);
