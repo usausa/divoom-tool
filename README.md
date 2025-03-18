@@ -1,13 +1,25 @@
 # Divoom client tool for Pixoo-64
 
-# Globalt tool
-
-## Install
+# Install
 
 ```
 > dotnet tool install -g DivoomTool
 ```
 
-## Usage
+# Usage
 
-(TODO)
+## Service
+
+### Get device list
+
+```
+divoom device
+```
+
+## System
+
+### Reboot
+
+```
+divoom reboot -h 192.168.100.101
+```
