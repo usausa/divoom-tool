@@ -1,5 +1,6 @@
 namespace Divoom.Client;
 
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 //--------------------------------------------------------------------------------
@@ -9,10 +10,10 @@ using System.Text.Json.Serialization;
 public class ServiceResult
 {
     [JsonPropertyName("ReturnCode")]
-    public int Code { get; set; }
+    public int ReturnCode { get; set; }
 
     [JsonPropertyName("ReturnMessage")]
-    public string Message { get; set; } = default!;
+    public string ReturnMessage { get; set; } = default!;
 }
 
 public sealed class DeviceInfo
@@ -121,8 +122,28 @@ public class ImageListResult : ServiceResult
 
 public class DeviceResult
 {
+    [JsonInclude]
     [JsonPropertyName("error_code")]
-    public int Code { get; set; }
+    internal JsonElement? ErrorCodeElement
+    {
+        set
+        {
+            if (value is { ValueKind: JsonValueKind.Number })
+            {
+                ErrorCode = value.Value.GetInt32();
+            }
+            if (value is { ValueKind: JsonValueKind.String })
+            {
+                ErrorMessage = value.Value.ToString();
+            }
+        }
+    }
+
+    [JsonIgnore]
+    public int ErrorCode { get; private set; }
+
+    [JsonIgnore]
+    public string ErrorMessage { get; private set; } = string.Empty;
 }
 
 public sealed class IndexResult : DeviceResult
