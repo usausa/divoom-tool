@@ -65,10 +65,11 @@ dialCommand.Add(dialTypeCommand);
 
 var dialListCommand = new Command("list", "Get dial list");
 dialListCommand.AddOption(new Option<string>(["--type", "-t"], "Dial type") { IsRequired = true });
+dialListCommand.AddOption(new Option<bool>(["--lcd", "-l"], "LCD"));
 dialListCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
-dialListCommand.Handler = CommandHandler.Create(static async (IConsole console, string type, int page) =>
+dialListCommand.Handler = CommandHandler.Create(static async (IConsole console, string type, bool lcd, int page) =>
 {
-    var result = await DivoomClient.GetDialListAsync(type, page);
+    var result = await DivoomClient.GetDialListAsync(type, lcd ? "LCD" : null, page);
     result.EnsureSuccessStatus();
 
     console.WriteLine($"Total: {result.Total}");
@@ -456,7 +457,7 @@ rootCommand.Add(brightnessCommand);
 //--------------------------------------------------------------------------------
 var rotationCommand = new Command("rotation", "Set rotation");
 rotationCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-rotationCommand.AddOption(new Option<int>(["--rotation", "-r"], "Rotation") { IsRequired = true });
+rotationCommand.AddOption(new Option<int>(["--angle", "-a"], "Angle") { IsRequired = true });
 rotationCommand.Handler = CommandHandler.Create(static async (string host, int rotation) =>
 {
     using var client = new DivoomClient(host);

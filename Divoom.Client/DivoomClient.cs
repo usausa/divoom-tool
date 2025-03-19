@@ -56,12 +56,13 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DialTypeResult>(json)!;
     }
 
-    public static async Task<DialListResult> GetDialListAsync(string type, int page)
+    public static async Task<DialListResult> GetDialListAsync(string dial, string? device, int page)
     {
         using var client = CreateServiceClient();
         using var request = CreateRequest(new
         {
-            DialType = type,
+            DialType = dial,
+            DeviceType = device,
             Page = page
         });
         var response = await client.PostAsync("Channel/GetDialList", request).ConfigureAwait(false);
