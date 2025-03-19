@@ -270,7 +270,7 @@ public sealed class DivoomClient : IDisposable
     {
         using var request = CreateRequest(new
         {
-            Command = "Tools/SetStopwatch",
+            Command = "Tools/SetStopWatch",
             Status = (int)command
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
