@@ -104,7 +104,7 @@ currentCommand.Handler = CommandHandler.Create(static async (IConsole console, s
     var result = await client.GetChannelIndexAsync();
     result.EnsureSuccessStatus();
 
-    console.WriteLine($"Index: {result.Index}");
+    console.WriteLine(result.Indexes.Length > 0 ? $"Index: {String.Join(',', result.Indexes.Select(static x => (Channel)x))}" : $"Index: {(Channel)result.Index}");
 });
 rootCommand.Add(currentCommand);
 

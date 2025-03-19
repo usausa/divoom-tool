@@ -3,6 +3,8 @@ namespace Divoom.Client;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+#pragma warning disable CA1819
+
 //--------------------------------------------------------------------------------
 // Service
 //--------------------------------------------------------------------------------
@@ -34,13 +36,11 @@ public sealed class DeviceInfo
     public string MacAddress { get; set; } = default!;
 }
 
-#pragma warning disable CA1819
 public sealed class DeviceListResult : ServiceResult
 {
     [JsonPropertyName("DeviceList")]
     public DeviceInfo[] Devices { get; set; } = default!;
 }
-#pragma warning restore CA1819
 
 public sealed class FontInfo
 {
@@ -63,21 +63,17 @@ public sealed class FontInfo
     public FontType Type { get; set; }
 }
 
-#pragma warning disable CA1819
 public sealed class FontListResult : ServiceResult
 {
     [JsonPropertyName("FontList")]
     public FontInfo[] Fonts { get; set; } = default!;
 }
-#pragma warning restore CA1819
 
-#pragma warning disable CA1819
 public sealed class DialTypeResult : ServiceResult
 {
     [JsonPropertyName("DialTypeList")]
     public string[] Types { get; set; } = default!;
 }
-#pragma warning restore CA1819
 
 public sealed class DialInfo
 {
@@ -88,7 +84,6 @@ public sealed class DialInfo
     public string Name { get; set; } = default!;
 }
 
-#pragma warning disable CA1819
 public sealed class DialListResult : ServiceResult
 {
     [JsonPropertyName("TotalNum")]
@@ -97,7 +92,6 @@ public sealed class DialListResult : ServiceResult
     [JsonPropertyName("DialList")]
     public DialInfo[] Dials { get; set; } = default!;
 }
-#pragma warning restore CA1819
 
 public sealed class ImageInfo
 {
@@ -108,13 +102,11 @@ public sealed class ImageInfo
     public string FileId { get; set; } = default!;
 }
 
-#pragma warning disable CA1819
 public class ImageListResult : ServiceResult
 {
     [JsonPropertyName("ImgList")]
     public ImageInfo[] Images { get; set; } = default!;
 }
-#pragma warning restore CA1819
 
 //--------------------------------------------------------------------------------
 // Device
@@ -148,8 +140,28 @@ public class DeviceResult
 
 public sealed class IndexResult : DeviceResult
 {
+    [JsonInclude]
     [JsonPropertyName("SelectIndex")]
-    public int Index { get; set; }
+    internal JsonElement? SelectIndexElement
+    {
+        set
+        {
+            if (value is { ValueKind: JsonValueKind.Number })
+            {
+                Index = value.Value.GetInt32();
+            }
+            if (value is { ValueKind: JsonValueKind.Array })
+            {
+                Indexes = value.Value.Deserialize<int[]>()!;
+            }
+        }
+    }
+
+    [JsonIgnore]
+    public int Index { get; private set; }
+
+    [JsonIgnore]
+    public int[] Indexes { get; private set; } = [];
 }
 
 public sealed class ClockResult : DeviceResult
