@@ -212,31 +212,34 @@ public sealed class WeatherResult : DeviceResult
 public sealed class ConfigResult : DeviceResult
 {
     [JsonPropertyName("Weather")]
-    public string Weather { get; set; } = default!;
+    public string? Weather { get; set; }
 
     [JsonPropertyName("Brightness")]
-    public int Brightness { get; set; }
+    public int? Brightness { get; set; }
 
     [JsonPropertyName("RotationFlag")]
-    public int Rotation { get; set; }
+    public int? Rotation { get; set; }
 
     [JsonPropertyName("ClockTime")]
-    public int ClockTime { get; set; }
+    public int? ClockTime { get; set; }
 
     [JsonPropertyName("GalleryTime")]
-    public int GalleryTime { get; set; }
+    public int? GalleryTime { get; set; }
 
     [JsonPropertyName("SingleGalleyTime")]
-    public int SingleGalleyTime { get; set; }
+    public int? SingleGalleyTime { get; set; }
 
     [JsonPropertyName("PowerOnChannelId")]
-    public int PowerOnChannelId { get; set; }
+    public int? PowerOnChannelId { get; set; }
 
     [JsonPropertyName("GalleryShowTimeFlag")]
-    public int GalleryShowTime { get; set; }
+    public int? GalleryShowTime { get; set; }
 
     [JsonPropertyName("CurClockId")]
-    public int CurrentClockId { get; set; }
+    public int? CurrentClockId { get; set; }
+
+    [JsonPropertyName("DateFormat")]
+    public string? DateFormat { get; set; }
 
     [JsonPropertyName("Time24Flag")]
     public int Time24 { get; set; }

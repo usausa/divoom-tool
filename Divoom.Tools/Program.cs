@@ -550,28 +550,35 @@ configCommand.Handler = CommandHandler.Create(static async (IConsole console, st
     var result = await client.GetAllConfigAsync();
     result.EnsureSuccessStatus();
 
-    console.WriteLine($"Brightness: {result.Brightness}");
-    var rotation = (RotationAngle)result.Rotation switch
+    Show(console, "Weather", result.Weather);
+    Show(console, "Brightness", result.Brightness);
+    Show(console, "Rotation", result.Rotation, static x => (RotationAngle)x! switch
     {
         RotationAngle.Rotate90 => 90,
         RotationAngle.Rotate180 => 180,
         RotationAngle.Rotate270 => 270,
         _ => 0
-    };
-    console.WriteLine($"Rotation: {rotation}");
-    console.WriteLine($"ClockTime: {result.ClockTime}");
-    console.WriteLine($"GalleryTime: {result.GalleryTime}");
-    console.WriteLine($"SingleGalleyTime: {result.SingleGalleyTime}");
-    console.WriteLine($"PowerOnChannelId: {result.PowerOnChannelId}");
-    console.WriteLine($"GalleryShowTime: {result.GalleryShowTime}");
-    console.WriteLine($"CurrentClockId: {result.CurrentClockId}");
-    console.WriteLine($"HourMode: {(HourMode)result.Time24}");
-    console.WriteLine($"TemperatureMode: {(TemperatureMode)result.TemperatureMode}");
-    console.WriteLine($"GyrateAngle: {result.GyrateAngle}");
-    var mirror = result.Mirror == 1 ? "enable" : "disable";
-    console.WriteLine($"Mirror: {mirror}");
-    var lightSwitch = result.LightSwitch == 1 ? "on" : "off";
-    console.WriteLine($"LightSwitch: {lightSwitch}");
+    });
+    Show(console, "ClockTime", result.ClockTime);
+    Show(console, "GalleryTime", result.GalleryTime);
+    Show(console, "SingleGalleyTime", result.SingleGalleyTime);
+    Show(console, "PowerOnChannelId", result.PowerOnChannelId);
+    Show(console, "GalleryShowTime", result.GalleryShowTime);
+    Show(console, "CurrentClockId", result.CurrentClockId);
+    Show(console, "DateFormat", result.DateFormat);
+    Show(console, "HourMode", result.Time24, static x => (HourMode)x == HourMode.Hour12 ? "12" : "24");
+    Show(console, "TemperatureMode", result.TemperatureMode, static x => (TemperatureMode)x);
+    Show(console, "GyrateAngle", result.GyrateAngle);
+    Show(console, "Mirror", result.Mirror, static x => x == 1 ? "enable" : "disable");
+    Show(console, "LightSwitch", result.LightSwitch, static x => x == 1 ? "on" : "off");
+
+    void Show<T>(IConsole console, string name, T? value, Func<T, object>? converter = null)
+    {
+        if (value is not null)
+        {
+            console.WriteLine(converter is not null ? $"{name}: {converter(value)}" : $"{name}: {value}");
+        }
+    }
 });
 rootCommand.Add(configCommand);
 
@@ -610,11 +617,11 @@ rootCommand.Add(timezoneCommand);
 var temperatureCommand = new Command("temperature", "Set temperature mode");
 temperatureCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 temperatureCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("c", "celsius", "f", "fahrenheit"));
-temperatureCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
+temperatureCommand.Handler = CommandHandler.Create(static async (string host, string mode) =>
 {
     using var client = new DivoomClient(host);
     var result = await client.ConfigTemperatureModeAsync(
-        value switch
+        mode switch
         {
             "f" or "fahrenheit" => TemperatureMode.Fahrenheit,
             _ => TemperatureMode.Celsius
@@ -629,11 +636,11 @@ rootCommand.Add(temperatureCommand);
 var hourCommand = new Command("hour", "Set hour mode");
 hourCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 hourCommand.AddOption(new Option<string>(["--mode", "-m"], "Mode") { IsRequired = true }.FromAmong("12", "24"));
-hourCommand.Handler = CommandHandler.Create(static async (string host, string value) =>
+hourCommand.Handler = CommandHandler.Create(static async (string host, string mode) =>
 {
     using var client = new DivoomClient(host);
     var result = await client.ConfigHourModeAsync(
-        value switch
+        mode switch
         {
             "24" => HourMode.Hour24,
             _ => HourMode.Hour12
