@@ -56,13 +56,13 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<ClockTypeResult>(json)!;
     }
 
-    public static async Task<ClockListResult> GeClockListAsync(string dial, string? device, int page)
+    public static async Task<ClockListResult> GeClockListAsync(string dialType, string? deviceType, int page)
     {
         using var client = CreateServiceClient();
         using var request = CreateRequest(new
         {
-            DialType = dial,
-            DeviceType = device,
+            DialType = dialType,
+            DeviceType = deviceType,
             Page = page
         });
         var response = await client.PostAsync("Channel/GetDialList", request).ConfigureAwait(false);
@@ -84,13 +84,27 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<Lcd5ClockListResult>(json)!;
     }
 
-    public static async Task<ImageListResult> GetUploadImageListAsync(int deviceId, string mac, int page = 1)
+    public static async Task<Lcd5ClockInfoResult> GetLcd5ClockInfoAsync(int deviceId, string deviceType)
     {
         using var client = CreateServiceClient();
         using var request = CreateRequest(new
         {
             DeviceId = deviceId,
-            DeviceMac = mac,
+            DeviceType = deviceType
+        });
+        var response = await client.PostAsync("Channel/Get5LcdInfoV2", request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Lcd5ClockInfoResult>(json)!;
+    }
+
+    public static async Task<ImageListResult> GetUploadImageListAsync(int deviceId, string deviceMac, int page = 1)
+    {
+        using var client = CreateServiceClient();
+        using var request = CreateRequest(new
+        {
+            DeviceId = deviceId,
+            DeviceMac = deviceMac,
             Page = page
         });
         var response = await client.PostAsync("Device/GetImgUploadList", request).ConfigureAwait(false);
@@ -99,13 +113,13 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<ImageListResult>(json)!;
     }
 
-    public static async Task<ImageListResult> GetLikeImageListAsync(int deviceId, string mac, int page = 1)
+    public static async Task<ImageListResult> GetLikeImageListAsync(int deviceId, string deviceMac, int page = 1)
     {
         using var client = CreateServiceClient();
         using var request = CreateRequest(new
         {
             DeviceId = deviceId,
-            DeviceMac = mac,
+            DeviceMac = deviceMac,
             Page = page
         });
         var response = await client.PostAsync("Device/GetImgLikeList", request).ConfigureAwait(false);
@@ -146,12 +160,12 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<IndexResult>(json)!;
     }
 
-    public async Task<DeviceResult> SetChannelIndexAsync(Channel channel)
+    public async Task<DeviceResult> SetChannelIndexAsync(IndexType index)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/SetIndex",
-            SelectIndex = (int)channel
+            SelectIndex = (int)index
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -347,14 +361,14 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<WeatherResult>(json)!;
     }
 
-    public async Task<DeviceResult> PlayBuzzerAsync(int active, int off, int total)
+    public async Task<DeviceResult> PlayBuzzerAsync(int activeTime, int offTime, int totalTime)
     {
         using var request = CreateRequest(new
         {
             Command = "Device/PlayBuzzer",
-            ActiveTimeInCycle = active,
-            OffTimeInCycle = off,
-            PlayTotalTime = total
+            ActiveTimeInCycle = activeTime,
+            OffTimeInCycle = offTime,
+            PlayTotalTime = totalTime
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -427,14 +441,14 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<DeviceResult> SetWhiteBalanceAsync(int r, int g, int b)
+    public async Task<DeviceResult> SetWhiteBalanceAsync(int red, int green, int blue)
     {
         using var request = CreateRequest(new
         {
             Command = "Device/SetWhiteBalance",
-            RValue = r,
-            GValue = g,
-            BValue = b
+            RValue = red,
+            GValue = green,
+            BValue = blue
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -487,12 +501,12 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<DeviceResult> ConfigTimeZoneAsync(string tz)
+    public async Task<DeviceResult> ConfigTimeZoneAsync(string timezone)
     {
         using var request = CreateRequest(new
         {
             Command = "Sys/TimeZone",
-            TimeZoneValue = tz
+            TimeZoneValue = timezone
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();

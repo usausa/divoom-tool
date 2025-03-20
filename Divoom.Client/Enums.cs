@@ -8,7 +8,7 @@ public enum FontType
     CanScroll = 1
 }
 
-public enum Channel
+public enum IndexType
 {
     Clock = 0,
     Cloud = 1,

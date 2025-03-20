@@ -20,7 +20,7 @@ deviceCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
     var result = await DivoomClient.GetDeviceListAsync();
     result.EnsureSuccessStatus();
 
-    foreach (var device in result.Devices)
+    foreach (var device in result.DeviceList)
     {
         console.WriteLine($"{device.Id} {device.MacAddress} {device.IpAddress} {device.Hardware} {device.Name}");
     }
@@ -36,7 +36,7 @@ fontCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
     var result = await DivoomClient.GetFontListAsync();
     result.EnsureSuccessStatus();
 
-    foreach (var font in result.Fonts)
+    foreach (var font in result.FontList)
     {
         var scroll = font.Type == FontType.CanScroll ? "+" : "-";
         console.WriteLine($"{font.Id} {font.Width}/{font.Height} {scroll} {font.Name} {font.Chars}");
@@ -55,7 +55,8 @@ currentCommand.Handler = CommandHandler.Create(static async (IConsole console, s
     var result = await client.GetChannelIndexAsync();
     result.EnsureSuccessStatus();
 
-    console.WriteLine(result.Indexes.Length > 0 ? $"Index: {String.Join(',', result.Indexes.Select(static x => (Channel)x))}" : $"Index: {(Channel)result.Index}");
+    // TODO extra?
+    console.WriteLine(result.Indexes.Length > 0 ? $"Index: {String.Join(',', result.Indexes.Select(static x => (IndexType)x))}" : $"Index: {(IndexType)result.Index}");
 });
 rootCommand.Add(currentCommand);
 
@@ -67,7 +68,7 @@ clockCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRe
 clockCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SetChannelIndexAsync(Channel.Clock);
+    var result = await client.SetChannelIndexAsync(IndexType.Clock);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(clockCommand);
@@ -78,7 +79,7 @@ clockTypeCommand.Handler = CommandHandler.Create(static async (IConsole console)
     var result = await DivoomClient.GetClockTypeAsync();
     result.EnsureSuccessStatus();
 
-    foreach (var type in result.Types)
+    foreach (var type in result.TypeList)
     {
         console.WriteLine(type);
     }
@@ -95,7 +96,7 @@ clockListCommand.Handler = CommandHandler.Create(static async (IConsole console,
     result.EnsureSuccessStatus();
 
     console.WriteLine($"Total: {result.Total}");
-    foreach (var clock in result.Clocks)
+    foreach (var clock in result.ClockList)
     {
         console.WriteLine($"{clock.Id} {clock.Name}");
     }
@@ -133,7 +134,7 @@ cloudCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRe
 cloudCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SetChannelIndexAsync(Channel.Cloud);
+    var result = await client.SetChannelIndexAsync(IndexType.Cloud);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(cloudCommand);
@@ -156,7 +157,7 @@ equalizerCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { 
 equalizerCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SetChannelIndexAsync(Channel.Equalizer);
+    var result = await client.SetChannelIndexAsync(IndexType.Equalizer);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(equalizerCommand);
@@ -180,7 +181,7 @@ customCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsR
 customCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SetChannelIndexAsync(Channel.Custom);
+    var result = await client.SetChannelIndexAsync(IndexType.Custom);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(customCommand);
@@ -209,14 +210,38 @@ lcd5ListCommand.Handler = CommandHandler.Create(static async (IConsole console, 
     result.EnsureSuccessStatus();
 
     console.WriteLine($"Total: {result.Total}");
-    foreach (var clock in result.Clocks)
+    foreach (var clock in result.ClockList)
     {
         console.WriteLine($"{clock.Id} {clock.Name}");
     }
 });
 lcd5Command.Add(lcd5ListCommand);
 
-// TODO select
+var lcd5InfoCommand = new Command("info", "Get lcd independence information");
+lcd5InfoCommand.AddOption(new Option<int>(["--device", "-d"], "Device id") { IsRequired = true });
+lcd5InfoCommand.Handler = CommandHandler.Create(static async (IConsole console, int device) =>
+{
+    var result = await DivoomClient.GetLcd5ClockInfoAsync(device, "LCD");
+    result.EnsureSuccessStatus();
+
+    var channelType = result.ChannelType == 1 ? "Independence" : "Whole";
+    console.WriteLine($"ChannelType: {channelType}");
+    console.WriteLine($"Independence: {result.Independence}");
+    console.WriteLine($"ClockId: {result.ClockId}");
+    for (var i = 0; i < result.LcdIndependenceList.Length; i++)
+    {
+        var independence = result.LcdIndependenceList[i];
+        console.WriteLine($"{i + 1}: {independence.Independence} {independence.Name}");
+        foreach (var lcd in independence.LcdList)
+        {
+            console.WriteLine($"{(IndexType)lcd.Index} {lcd.ClockId} {lcd.ImagePixelId}");
+        }
+    }
+});
+lcd5Command.Add(lcd5InfoCommand);
+
+// TODO channel
+// TODO whole
 
 //--------------------------------------------------------------------------------
 // monitor
@@ -463,7 +488,7 @@ remoteListCommand.Handler = CommandHandler.Create(static async (IConsole console
     var result = await DivoomClient.GetUploadImageListAsync(device, mac, page);
     result.EnsureSuccessStatus();
 
-    foreach (var image in result.Images)
+    foreach (var image in result.ImageList)
     {
         console.WriteLine($"{image.FileName} {image.FileId}");
     }
@@ -479,7 +504,7 @@ remoteLikeCommand.Handler = CommandHandler.Create(static async (IConsole console
     var result = await DivoomClient.GetLikeImageListAsync(device, mac, page);
     result.EnsureSuccessStatus();
 
-    foreach (var image in result.Images)
+    foreach (var image in result.ImageList)
     {
         console.WriteLine($"{image.FileName} {image.FileId}");
     }

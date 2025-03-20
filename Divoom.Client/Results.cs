@@ -39,7 +39,7 @@ public sealed class DeviceInfo
 public sealed class DeviceListResult : ServiceResult
 {
     [JsonPropertyName("DeviceList")]
-    public DeviceInfo[] Devices { get; set; } = default!;
+    public DeviceInfo[] DeviceList { get; set; } = default!;
 }
 
 public sealed class FontInfo
@@ -66,13 +66,13 @@ public sealed class FontInfo
 public sealed class FontListResult : ServiceResult
 {
     [JsonPropertyName("FontList")]
-    public FontInfo[] Fonts { get; set; } = default!;
+    public FontInfo[] FontList { get; set; } = default!;
 }
 
 public sealed class ClockTypeResult : ServiceResult
 {
     [JsonPropertyName("DialTypeList")]
-    public string[] Types { get; set; } = default!;
+    public string[] TypeList { get; set; } = default!;
 }
 
 public sealed class ClockInfo
@@ -90,7 +90,7 @@ public sealed class ClockListResult : ServiceResult
     public int Total { get; set; }
 
     [JsonPropertyName("DialList")]
-    public ClockInfo[] Clocks { get; set; } = default!;
+    public ClockInfo[] ClockList { get; set; } = default!;
 }
 
 public sealed class Lcd5ClockInfo
@@ -111,7 +111,46 @@ public sealed class Lcd5ClockListResult : ServiceResult
     public int Total { get; set; }
 
     [JsonPropertyName("ClockList")]
-    public Lcd5ClockInfo[] Clocks { get; set; } = default!;
+    public Lcd5ClockInfo[] ClockList { get; set; } = default!;
+}
+
+public sealed class LcdInfo
+{
+    [JsonPropertyName("LcdSelectIndex")]
+    public int Index { get; set; }
+
+    [JsonPropertyName("LcdClockId")]
+    public int ClockId { get; set; }
+
+    [JsonPropertyName("ClockImagePixelId")]
+    public string ImagePixelId { get; set; } = default!;
+}
+
+public sealed class LcdIndependenceInfo
+{
+    [JsonPropertyName("IndependenceName")]
+    public string Name { get; set; } = default!;
+
+    [JsonPropertyName("LcdIndependence")]
+    public int Independence { get; set; }
+
+    [JsonPropertyName("LcdList")]
+    public LcdInfo[] LcdList { get; set; } = default!;
+}
+
+public sealed class Lcd5ClockInfoResult : ServiceResult
+{
+    [JsonPropertyName("ChannelType")]
+    public int ChannelType { get; set; }
+
+    [JsonPropertyName("LcdIndependence")]
+    public int Independence { get; set; }
+
+    [JsonPropertyName("ClockId")]
+    public int ClockId { get; set; }
+
+    [JsonPropertyName("LcdIndependenceList")]
+    public LcdIndependenceInfo[] LcdIndependenceList { get; set; } = default!;
 }
 
 public sealed class ImageInfo
@@ -126,7 +165,7 @@ public sealed class ImageInfo
 public class ImageListResult : ServiceResult
 {
     [JsonPropertyName("ImgList")]
-    public ImageInfo[] Images { get; set; } = default!;
+    public ImageInfo[] ImageList { get; set; } = default!;
 }
 
 //--------------------------------------------------------------------------------
