@@ -47,16 +47,16 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<FontListResult>(json)!;
     }
 
-    public static async Task<DialTypeResult> GetDialTypeAsync()
+    public static async Task<ClockTypeResult> GetClockTypeAsync()
     {
         using var client = CreateServiceClient();
         var response = await client.GetAsync("Channel/GetDialType").ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<DialTypeResult>(json)!;
+        return JsonSerializer.Deserialize<ClockTypeResult>(json)!;
     }
 
-    public static async Task<DialListResult> GetDialListAsync(string dial, string? device, int page)
+    public static async Task<ClockListResult> GeClockListAsync(string dial, string? device, int page)
     {
         using var client = CreateServiceClient();
         using var request = CreateRequest(new
@@ -68,7 +68,20 @@ public sealed class DivoomClient : IDisposable
         var response = await client.PostAsync("Channel/GetDialList", request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<DialListResult>(json)!;
+        return JsonSerializer.Deserialize<ClockListResult>(json)!;
+    }
+
+    public static async Task<Lcd5ClockListResult> GetLcd5ClockListAsync(int page)
+    {
+        using var client = CreateServiceClient();
+        using var request = CreateRequest(new
+        {
+            Page = page
+        });
+        var response = await client.PostAsync("Channel/Get5LcdClockListForCommon", request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Lcd5ClockListResult>(json)!;
     }
 
     public static async Task<ImageListResult> GetUploadImageListAsync(int deviceId, string mac, int page = 1)

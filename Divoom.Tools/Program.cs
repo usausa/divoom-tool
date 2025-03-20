@@ -45,55 +45,6 @@ fontCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
 rootCommand.Add(fontCommand);
 
 //--------------------------------------------------------------------------------
-// dial
-//--------------------------------------------------------------------------------
-var dialCommand = new Command("dial", "Get dial information");
-rootCommand.Add(dialCommand);
-
-var dialTypeCommand = new Command("type", "Get dial type");
-dialTypeCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
-{
-    var result = await DivoomClient.GetDialTypeAsync();
-    result.EnsureSuccessStatus();
-
-    foreach (var type in result.Types)
-    {
-        console.WriteLine(type);
-    }
-});
-dialCommand.Add(dialTypeCommand);
-
-var dialListCommand = new Command("list", "Get dial list");
-dialListCommand.AddOption(new Option<string>(["--type", "-t"], "Dial type") { IsRequired = true });
-dialListCommand.AddOption(new Option<bool>(["--lcd", "-l"], "LCD"));
-dialListCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
-dialListCommand.Handler = CommandHandler.Create(static async (IConsole console, string type, bool lcd, int page) =>
-{
-    var result = await DivoomClient.GetDialListAsync(type, lcd ? "LCD" : null, page);
-    result.EnsureSuccessStatus();
-
-    console.WriteLine($"Total: {result.Total}");
-    foreach (var dial in result.Dials)
-    {
-        console.WriteLine($"{dial.Id} {dial.Name}");
-    }
-});
-dialCommand.Add(dialListCommand);
-
-//--------------------------------------------------------------------------------
-// reboot
-//--------------------------------------------------------------------------------
-var rebootCommand = new Command("reboot", "Reboot");
-rebootCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-rebootCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.RebootAsync();
-    result.EnsureSuccessStatus();
-});
-rootCommand.Add(rebootCommand);
-
-//--------------------------------------------------------------------------------
 // current
 //--------------------------------------------------------------------------------
 var currentCommand = new Command("current", "Get current channel");
@@ -121,6 +72,36 @@ clockCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(clockCommand);
 
+var clockTypeCommand = new Command("type", "Get clock type");
+clockTypeCommand.Handler = CommandHandler.Create(static async (IConsole console) =>
+{
+    var result = await DivoomClient.GetClockTypeAsync();
+    result.EnsureSuccessStatus();
+
+    foreach (var type in result.Types)
+    {
+        console.WriteLine(type);
+    }
+});
+clockCommand.Add(clockTypeCommand);
+
+var clockListCommand = new Command("list", "Get clock list");
+clockListCommand.AddOption(new Option<string>(["--type", "-t"], "Dial type") { IsRequired = true });
+clockListCommand.AddOption(new Option<bool>(["--lcd", "-l"], "LCD"));
+clockListCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
+clockListCommand.Handler = CommandHandler.Create(static async (IConsole console, string type, bool lcd, int page) =>
+{
+    var result = await DivoomClient.GeClockListAsync(type, lcd ? "LCD" : null, page);
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"Total: {result.Total}");
+    foreach (var clock in result.Clocks)
+    {
+        console.WriteLine($"{clock.Id} {clock.Name}");
+    }
+});
+clockCommand.Add(clockListCommand);
+
 var clockInfoCommand = new Command("info", "Show clock information");
 clockInfoCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
 {
@@ -133,6 +114,7 @@ clockInfoCommand.Handler = CommandHandler.Create(static async (IConsole console,
 });
 clockCommand.Add(clockInfoCommand);
 
+// TODO option
 var clockSelectCommand = new Command("select", "Select clock");
 clockSelectCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
 clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int id) =>
@@ -179,6 +161,7 @@ equalizerCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(equalizerCommand);
 
+// TODO option
 var equalizerSelectCommand = new Command("select", "Select equalizer");
 equalizerSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Equalizer index") { IsRequired = true });
 equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
@@ -211,6 +194,29 @@ customSelectCommand.Handler = CommandHandler.Create(static async (string host, i
     result.EnsureSuccessStatus();
 });
 customCommand.Add(customSelectCommand);
+
+//--------------------------------------------------------------------------------
+// lcd5
+//--------------------------------------------------------------------------------
+var lcd5Command = new Command("lcd5", "Get lcd whole information");
+rootCommand.Add(lcd5Command);
+
+var lcd5ListCommand = new Command("list", "Get lcd whole list");
+lcd5ListCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
+lcd5ListCommand.Handler = CommandHandler.Create(static async (IConsole console, int page) =>
+{
+    var result = await DivoomClient.GetLcd5ClockListAsync(page);
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"Total: {result.Total}");
+    foreach (var clock in result.Clocks)
+    {
+        console.WriteLine($"{clock.Id} {clock.Name}");
+    }
+});
+lcd5Command.Add(lcd5ListCommand);
+
+// TODO select
 
 //--------------------------------------------------------------------------------
 // monitor
@@ -347,6 +353,242 @@ noiseStopCommand.Handler = CommandHandler.Create(static async (string host) =>
     result.EnsureSuccessStatus();
 });
 noiseCommand.Add(noiseStopCommand);
+
+//--------------------------------------------------------------------------------
+// image
+//--------------------------------------------------------------------------------
+var imageCommand = new Command("image", "Image tool");
+imageCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(imageCommand);
+
+var imageResetCommand = new Command("reset", "Reset image id");
+imageResetCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.ResetPictureIdAsync();
+    result.EnsureSuccessStatus();
+});
+imageCommand.Add(imageResetCommand);
+
+var imageIdCommand = new Command("id", "Get image id");
+imageIdCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.GetPictureIdAsync();
+    result.EnsureSuccessStatus();
+
+    console.WriteLine($"Id: {result.PictureId}");
+});
+imageCommand.Add(imageIdCommand);
+
+var imageDrawCommand = new Command("draw", "Draw image");
+imageDrawCommand.AddOption(new Option<int?>(["--id", "-i"], "Id"));
+imageDrawCommand.AddOption(new Option<string>(["--file", "-f"], "File") { IsRequired = true });
+imageDrawCommand.Handler = CommandHandler.Create(static async (string host, int? id, string file) =>
+{
+    using var client = new DivoomClient(host);
+
+    if (!id.HasValue)
+    {
+        var idResult = await client.GetPictureIdAsync();
+        idResult.EnsureSuccessStatus();
+        id = idResult.PictureId;
+    }
+
+    await using var stream = File.OpenRead(file);
+    using var bitmap = SKBitmap.Decode(stream);
+    var buffer = new byte[bitmap.Width * bitmap.Height * 3];
+    for (var y = 0; y < bitmap.Height; y++)
+    {
+        for (var x = 0; x < bitmap.Width; x++)
+        {
+            var span = buffer.AsSpan(((y * bitmap.Height) + x) * 3);
+            var c = bitmap.GetPixel(x, y);
+            span[0] = c.Red;
+            span[1] = c.Green;
+            span[2] = c.Blue;
+        }
+    }
+    var data = Convert.ToBase64String(buffer);
+
+    var result = await client.SendImageAsync(id.Value, bitmap.Width, data);
+    result.EnsureSuccessStatus();
+});
+imageCommand.Add(imageDrawCommand);
+
+var imageFillCommand = new Command("fill", "Fill image");
+imageFillCommand.AddOption(new Option<int?>(["--id", "-i"], "Id"));
+imageFillCommand.AddOption(new Option<int>(["--size", "-s"], () => 64, "Size"));
+imageFillCommand.AddOption(new Option<string>(["--color", "-c"], () => "#000000", "Color"));
+imageFillCommand.Handler = CommandHandler.Create(static async (string host, int? id, int size, string color) =>
+{
+    var c = SKColor.Parse(color);
+
+    using var client = new DivoomClient(host);
+
+    if (!id.HasValue)
+    {
+        var idResult = await client.GetPictureIdAsync();
+        idResult.EnsureSuccessStatus();
+        id = idResult.PictureId;
+    }
+
+    var buffer = new byte[size * size * 3];
+    for (var offset = 0; offset < buffer.Length; offset += 3)
+    {
+        var span = buffer.AsSpan(offset);
+        span[0] = c.Red;
+        span[1] = c.Green;
+        span[2] = c.Blue;
+    }
+    var data = Convert.ToBase64String(buffer);
+
+    var result = await client.SendImageAsync(id.Value, size, data);
+    result.EnsureSuccessStatus();
+});
+imageCommand.Add(imageFillCommand);
+
+//--------------------------------------------------------------------------------
+// remote
+//--------------------------------------------------------------------------------
+var remoteCommand = new Command("remote", "Remote image");
+rootCommand.Add(remoteCommand);
+
+var remoteListCommand = new Command("list", "List upload images");
+remoteListCommand.AddOption(new Option<int>(["--device", "-d"], "Device id") { IsRequired = true });
+remoteListCommand.AddOption(new Option<string>(["--mac", "-m"], "Device mac") { IsRequired = true });
+remoteListCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
+remoteListCommand.Handler = CommandHandler.Create(static async (IConsole console, int device, string mac, int page) =>
+{
+    var result = await DivoomClient.GetUploadImageListAsync(device, mac, page);
+    result.EnsureSuccessStatus();
+
+    foreach (var image in result.Images)
+    {
+        console.WriteLine($"{image.FileName} {image.FileId}");
+    }
+});
+remoteCommand.Add(remoteListCommand);
+
+var remoteLikeCommand = new Command("like", "List like images");
+remoteLikeCommand.AddOption(new Option<int>(["--device", "-d"], "Device id") { IsRequired = true });
+remoteLikeCommand.AddOption(new Option<string>(["--mac", "-m"], "Device mac") { IsRequired = true });
+remoteLikeCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
+remoteLikeCommand.Handler = CommandHandler.Create(static async (IConsole console, int device, string mac, int page) =>
+{
+    var result = await DivoomClient.GetLikeImageListAsync(device, mac, page);
+    result.EnsureSuccessStatus();
+
+    foreach (var image in result.Images)
+    {
+        console.WriteLine($"{image.FileName} {image.FileId}");
+    }
+});
+remoteCommand.Add(remoteLikeCommand);
+
+var remoteDrawCommand = new Command("draw", "Draw remote image");
+remoteDrawCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+remoteDrawCommand.AddOption(new Option<string>(["--id", "-i"], "File id") { IsRequired = true });
+remoteDrawCommand.Handler = CommandHandler.Create(static async (string host, string id) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SendRemoteAsync(id);
+    result.EnsureSuccessStatus();
+});
+remoteCommand.Add(remoteDrawCommand);
+
+//--------------------------------------------------------------------------------
+// text
+//--------------------------------------------------------------------------------
+var textCommand = new Command("text", "Text tool");
+textCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.Add(textCommand);
+
+var textDrawCommand = new Command("draw", "Draw text");
+textDrawCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["-x"], "Start x") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["-y"], "Start y") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["--width", "-w"], "Text area width") { IsRequired = true });
+textDrawCommand.AddOption(new Option<int>(["--font", "-f"], "Font id") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--color", "-c"], "Font color") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--text", "-t"], "Text string") { IsRequired = true });
+textDrawCommand.AddOption(new Option<string>(["--ali", "-a"], () => "l", "Text alignment") { IsRequired = true }.FromAmong("l", "left", "m", "middle", "r", "right"));
+textDrawCommand.AddOption(new Option<string>(["--dir", "-d"], () => "l", "Scroll direction") { IsRequired = true }.FromAmong("l", "left", "r", "right"));
+textDrawCommand.AddOption(new Option<int>(["--speed", "-s"], () => 0, "Font id"));
+textDrawCommand.Handler = CommandHandler.Create(static async (string host, int id, int x, int y, int width, int font, string color, string text, string alignment, string direction, int speed) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SendTextAsync(
+        id,
+        x,
+        y,
+        width,
+        font,
+        color.StartsWith('#') ? color : "#" + color,
+        text,
+        alignment switch
+        {
+            "m" or "middle" => TextAlignment.Middle,
+            "r" or "right" => TextAlignment.Right,
+            _ => TextAlignment.Left
+        },
+        direction switch
+        {
+            "m" or "middle" => TextDirection.Right,
+            _ => TextDirection.Left
+        },
+        speed);
+    result.EnsureSuccessStatus();
+});
+textCommand.Add(textDrawCommand);
+
+var textClearCommand = new Command("clear", "Clear text");
+textClearCommand.Handler = CommandHandler.Create(static async (string host) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.ClearTextAsync();
+    result.EnsureSuccessStatus();
+});
+textCommand.Add(textClearCommand);
+
+//--------------------------------------------------------------------------------
+// display
+//--------------------------------------------------------------------------------
+var displayCommand = new Command("display", "Display item list");
+displayCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+displayCommand.AddOption(new Option<string>(["--file", "-f"], "File") { IsRequired = true });
+displayCommand.Handler = CommandHandler.Create(static async (string host, string file) =>
+{
+    var json = await File.ReadAllTextAsync(file);
+    var list = JsonSerializer.Deserialize<DrawItem[]>(json);
+
+    using var client = new DivoomClient(host);
+    var result = await client.SendItemListAsync(list!);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(displayCommand);
+
+//--------------------------------------------------------------------------------
+// gif
+//--------------------------------------------------------------------------------
+var gifCommand = new Command("gif", "Play gif");
+gifCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+gifCommand.AddOption(new Option<string>(["--type", "-t"], "File type") { IsRequired = true }.FromAmong("n", "net", "d", "directory", "f", "file"));
+gifCommand.AddOption(new Option<string>(["--name", "-n"], "File name") { IsRequired = true });
+gifCommand.Handler = CommandHandler.Create(static async (string host, string type, string name) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.PlayGif(
+        type switch
+        {
+            "d" or "directory" => PlayFileType.Folder,
+            "f" or "file" => PlayFileType.File,
+            _ => PlayFileType.Net
+        },
+        name);
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(gifCommand);
 
 //--------------------------------------------------------------------------------
 // time
@@ -650,240 +892,17 @@ hourCommand.Handler = CommandHandler.Create(static async (string host, string mo
 rootCommand.Add(hourCommand);
 
 //--------------------------------------------------------------------------------
-// image
+// reboot
 //--------------------------------------------------------------------------------
-var imageCommand = new Command("image", "Image tool");
-imageCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-rootCommand.Add(imageCommand);
-
-var imageResetCommand = new Command("reset", "Reset image id");
-imageResetCommand.Handler = CommandHandler.Create(static async (string host) =>
+var rebootCommand = new Command("reboot", "Reboot");
+rebootCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rebootCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.ResetPictureIdAsync();
+    var result = await client.RebootAsync();
     result.EnsureSuccessStatus();
 });
-imageCommand.Add(imageResetCommand);
-
-var imageIdCommand = new Command("id", "Get image id");
-imageIdCommand.Handler = CommandHandler.Create(static async (IConsole console, string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.GetPictureIdAsync();
-    result.EnsureSuccessStatus();
-
-    console.WriteLine($"Id: {result.PictureId}");
-});
-imageCommand.Add(imageIdCommand);
-
-var imageDrawCommand = new Command("draw", "Draw image");
-imageDrawCommand.AddOption(new Option<int?>(["--id", "-i"], "Id"));
-imageDrawCommand.AddOption(new Option<string>(["--file", "-f"], "File") { IsRequired = true });
-imageDrawCommand.Handler = CommandHandler.Create(static async (string host, int? id, string file) =>
-{
-    using var client = new DivoomClient(host);
-
-    if (!id.HasValue)
-    {
-        var idResult = await client.GetPictureIdAsync();
-        idResult.EnsureSuccessStatus();
-        id = idResult.PictureId;
-    }
-
-    await using var stream = File.OpenRead(file);
-    using var bitmap = SKBitmap.Decode(stream);
-    var buffer = new byte[bitmap.Width * bitmap.Height * 3];
-    for (var y = 0; y < bitmap.Height; y++)
-    {
-        for (var x = 0; x < bitmap.Width; x++)
-        {
-            var span = buffer.AsSpan(((y * bitmap.Height) + x) * 3);
-            var c = bitmap.GetPixel(x, y);
-            span[0] = c.Red;
-            span[1] = c.Green;
-            span[2] = c.Blue;
-        }
-    }
-    var data = Convert.ToBase64String(buffer);
-
-    var result = await client.SendImageAsync(id.Value, bitmap.Width, data);
-    result.EnsureSuccessStatus();
-});
-imageCommand.Add(imageDrawCommand);
-
-var imageFillCommand = new Command("fill", "Fill image");
-imageFillCommand.AddOption(new Option<int?>(["--id", "-i"], "Id"));
-imageFillCommand.AddOption(new Option<int>(["--size", "-s"], () => 64, "Size"));
-imageFillCommand.AddOption(new Option<string>(["--color", "-c"], () => "#000000", "Color"));
-imageFillCommand.Handler = CommandHandler.Create(static async (string host, int? id, int size, string color) =>
-{
-    var c = SKColor.Parse(color);
-
-    using var client = new DivoomClient(host);
-
-    if (!id.HasValue)
-    {
-        var idResult = await client.GetPictureIdAsync();
-        idResult.EnsureSuccessStatus();
-        id = idResult.PictureId;
-    }
-
-    var buffer = new byte[size * size * 3];
-    for (var offset = 0; offset < buffer.Length; offset += 3)
-    {
-        var span = buffer.AsSpan(offset);
-        span[0] = c.Red;
-        span[1] = c.Green;
-        span[2] = c.Blue;
-    }
-    var data = Convert.ToBase64String(buffer);
-
-    var result = await client.SendImageAsync(id.Value, size, data);
-    result.EnsureSuccessStatus();
-});
-imageCommand.Add(imageFillCommand);
-
-//--------------------------------------------------------------------------------
-// remote
-//--------------------------------------------------------------------------------
-var remoteCommand = new Command("remote", "Remote image");
-rootCommand.Add(remoteCommand);
-
-var remoteListCommand = new Command("list", "List upload images");
-remoteListCommand.AddOption(new Option<int>(["--device", "-d"], "Device id") { IsRequired = true });
-remoteListCommand.AddOption(new Option<string>(["--mac", "-m"], "Device mac") { IsRequired = true });
-remoteListCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
-remoteListCommand.Handler = CommandHandler.Create(static async (IConsole console, int device, string mac, int page) =>
-{
-    var result = await DivoomClient.GetUploadImageListAsync(device, mac, page);
-    result.EnsureSuccessStatus();
-
-    foreach (var image in result.Images)
-    {
-        console.WriteLine($"{image.FileName} {image.FileId}");
-    }
-});
-remoteCommand.Add(remoteListCommand);
-
-var remoteLikeCommand = new Command("like", "List like images");
-remoteLikeCommand.AddOption(new Option<int>(["--device", "-d"], "Device id") { IsRequired = true });
-remoteLikeCommand.AddOption(new Option<string>(["--mac", "-m"], "Device mac") { IsRequired = true });
-remoteLikeCommand.AddOption(new Option<int>(["--page", "-p"], () => 1, "Page"));
-remoteLikeCommand.Handler = CommandHandler.Create(static async (IConsole console, int device, string mac, int page) =>
-{
-    var result = await DivoomClient.GetLikeImageListAsync(device, mac, page);
-    result.EnsureSuccessStatus();
-
-    foreach (var image in result.Images)
-    {
-        console.WriteLine($"{image.FileName} {image.FileId}");
-    }
-});
-remoteCommand.Add(remoteLikeCommand);
-
-var remoteDrawCommand = new Command("draw", "Draw remote image");
-remoteDrawCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-remoteDrawCommand.AddOption(new Option<string>(["--id", "-i"], "File id") { IsRequired = true });
-remoteDrawCommand.Handler = CommandHandler.Create(static async (string host, string id) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SendRemoteAsync(id);
-    result.EnsureSuccessStatus();
-});
-remoteCommand.Add(remoteDrawCommand);
-
-//--------------------------------------------------------------------------------
-// text
-//--------------------------------------------------------------------------------
-var textCommand = new Command("text", "Text tool");
-textCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-rootCommand.Add(textCommand);
-
-var textDrawCommand = new Command("draw", "Draw text");
-textDrawCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
-textDrawCommand.AddOption(new Option<int>(["-x"], "Start x") { IsRequired = true });
-textDrawCommand.AddOption(new Option<int>(["-y"], "Start y") { IsRequired = true });
-textDrawCommand.AddOption(new Option<int>(["--width", "-w"], "Text area width") { IsRequired = true });
-textDrawCommand.AddOption(new Option<int>(["--font", "-f"], "Font id") { IsRequired = true });
-textDrawCommand.AddOption(new Option<string>(["--color", "-c"], "Font color") { IsRequired = true });
-textDrawCommand.AddOption(new Option<string>(["--text", "-t"], "Text string") { IsRequired = true });
-textDrawCommand.AddOption(new Option<string>(["--ali", "-a"], () => "l", "Text alignment") { IsRequired = true }.FromAmong("l", "left", "m", "middle", "r", "right"));
-textDrawCommand.AddOption(new Option<string>(["--dir", "-d"], () => "l", "Scroll direction") { IsRequired = true }.FromAmong("l", "left", "r", "right"));
-textDrawCommand.AddOption(new Option<int>(["--speed", "-s"], () => 0, "Font id"));
-textDrawCommand.Handler = CommandHandler.Create(static async (string host, int id, int x, int y, int width, int font, string color, string text, string alignment, string direction, int speed) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SendTextAsync(
-        id,
-        x,
-        y,
-        width,
-        font,
-        color.StartsWith('#') ? color : "#" + color,
-        text,
-        alignment switch
-        {
-            "m" or "middle" => TextAlignment.Middle,
-            "r" or "right" => TextAlignment.Right,
-            _ => TextAlignment.Left
-        },
-        direction switch
-        {
-            "m" or "middle" => TextDirection.Right,
-            _ => TextDirection.Left
-        },
-        speed);
-    result.EnsureSuccessStatus();
-});
-textCommand.Add(textDrawCommand);
-
-var textClearCommand = new Command("clear", "Clear text");
-textClearCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.ClearTextAsync();
-    result.EnsureSuccessStatus();
-});
-textCommand.Add(textClearCommand);
-
-//--------------------------------------------------------------------------------
-// display
-//--------------------------------------------------------------------------------
-var displayCommand = new Command("display", "Display item list");
-displayCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-displayCommand.AddOption(new Option<string>(["--file", "-f"], "File") { IsRequired = true });
-displayCommand.Handler = CommandHandler.Create(static async (string host, string file) =>
-{
-    var json = await File.ReadAllTextAsync(file);
-    var list = JsonSerializer.Deserialize<DrawItem[]>(json);
-
-    using var client = new DivoomClient(host);
-    var result = await client.SendItemListAsync(list!);
-    result.EnsureSuccessStatus();
-});
-rootCommand.Add(displayCommand);
-
-//--------------------------------------------------------------------------------
-// gif
-//--------------------------------------------------------------------------------
-var gifCommand = new Command("gif", "Play gif");
-gifCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-gifCommand.AddOption(new Option<string>(["--type", "-t"], "File type") { IsRequired = true }.FromAmong("n", "net", "d", "directory", "f", "file"));
-gifCommand.AddOption(new Option<string>(["--name", "-n"], "File name") { IsRequired = true });
-gifCommand.Handler = CommandHandler.Create(static async (string host, string type, string name) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.PlayGif(
-        type switch
-        {
-            "d" or "directory" => PlayFileType.Folder,
-            "f" or "file" => PlayFileType.File,
-            _ => PlayFileType.Net
-        },
-        name);
-    result.EnsureSuccessStatus();
-});
-rootCommand.Add(gifCommand);
+rootCommand.Add(rebootCommand);
 
 //--------------------------------------------------------------------------------
 // Run

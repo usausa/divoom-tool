@@ -69,13 +69,13 @@ public sealed class FontListResult : ServiceResult
     public FontInfo[] Fonts { get; set; } = default!;
 }
 
-public sealed class DialTypeResult : ServiceResult
+public sealed class ClockTypeResult : ServiceResult
 {
     [JsonPropertyName("DialTypeList")]
     public string[] Types { get; set; } = default!;
 }
 
-public sealed class DialInfo
+public sealed class ClockInfo
 {
     [JsonPropertyName("ClockId")]
     public int Id { get; set; }
@@ -84,13 +84,34 @@ public sealed class DialInfo
     public string Name { get; set; } = default!;
 }
 
-public sealed class DialListResult : ServiceResult
+public sealed class ClockListResult : ServiceResult
 {
     [JsonPropertyName("TotalNum")]
     public int Total { get; set; }
 
     [JsonPropertyName("DialList")]
-    public DialInfo[] Dials { get; set; } = default!;
+    public ClockInfo[] Clocks { get; set; } = default!;
+}
+
+public sealed class Lcd5ClockInfo
+{
+    [JsonPropertyName("ClockId")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("ClockName")]
+    public string Name { get; set; } = default!;
+
+    [JsonPropertyName("ClockExPlain")]
+    public string Description { get; set; } = default!;
+}
+
+public sealed class Lcd5ClockListResult : ServiceResult
+{
+    [JsonPropertyName("TotalNum")]
+    public int Total { get; set; }
+
+    [JsonPropertyName("ClockList")]
+    public Lcd5ClockInfo[] Clocks { get; set; } = default!;
 }
 
 public sealed class ImageInfo
