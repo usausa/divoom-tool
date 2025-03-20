@@ -658,38 +658,27 @@ rootCommand.Add(buzzerCommand);
 //--------------------------------------------------------------------------------
 // screen
 //--------------------------------------------------------------------------------
-var screenCommand = new Command("screen", "Screen switch");
+var screenCommand = new Command("screen", "Set screen mode");
 screenCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+screenCommand.AddOption(new Option<string>(["--mode", "-m"], () => "on", "Highlight mode").FromAmong("on", "off"));
+screenCommand.Handler = CommandHandler.Create(static async (string host, string mode) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SwitchScreenAsync(mode == "on");
+    result.EnsureSuccessStatus();
+});
 rootCommand.Add(screenCommand);
-
-var screenOnCommand = new Command("on", "Screen on");
-screenOnCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SwitchScreenAsync(true);
-    result.EnsureSuccessStatus();
-});
-screenCommand.Add(screenOnCommand);
-
-var screenOffCommand = new Command("off", "Screen off");
-screenOffCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SwitchScreenAsync(false);
-    result.EnsureSuccessStatus();
-});
-screenCommand.Add(screenOffCommand);
 
 //--------------------------------------------------------------------------------
 // brightness
 //--------------------------------------------------------------------------------
 var brightnessCommand = new Command("brightness", "Set brightness");
 brightnessCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-brightnessCommand.AddOption(new Option<int>(["--value", "-v"], "Brightness") { IsRequired = true });
-brightnessCommand.Handler = CommandHandler.Create(static async (string host, int value) =>
+brightnessCommand.AddOption(new Option<int>(["--brightness", "-b"], "Brightness") { IsRequired = true });
+brightnessCommand.Handler = CommandHandler.Create(static async (string host, int brightness) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SetBrightnessAsync(value);
+    var result = await client.SetBrightnessAsync(brightness);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(brightnessCommand);
@@ -720,57 +709,35 @@ rootCommand.Add(rotationCommand);
 //--------------------------------------------------------------------------------
 var mirrorCommand = new Command("mirror", "Set mirror mode");
 mirrorCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+mirrorCommand.AddOption(new Option<string>(["--mode", "-m"], () => "on", "Highlight mode").FromAmong("on", "off"));
+mirrorCommand.Handler = CommandHandler.Create(static async (string host, string mode) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SetMirrorModeAsync(mode == "on");
+    result.EnsureSuccessStatus();
+});
 rootCommand.Add(mirrorCommand);
-
-var mirrorOnCommand = new Command("on", "Mirror mode on");
-mirrorOnCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SetMirrorModeAsync(true);
-    result.EnsureSuccessStatus();
-});
-mirrorCommand.Add(mirrorOnCommand);
-
-var mirrorOffCommand = new Command("off", "Mirror mode off");
-mirrorOffCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SetMirrorModeAsync(false);
-    result.EnsureSuccessStatus();
-});
-mirrorCommand.Add(mirrorOffCommand);
 
 //--------------------------------------------------------------------------------
 // highlight
 //--------------------------------------------------------------------------------
 var highlightCommand = new Command("highlight", "Set highlight mode");
 highlightCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+highlightCommand.AddOption(new Option<string>(["--mode", "-m"], () => "on", "Highlight mode").FromAmong("on", "off"));
+highlightCommand.Handler = CommandHandler.Create(static async (string host, string mode) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SetHighlightModeAsync(mode == "on");
+    result.EnsureSuccessStatus();
+});
 rootCommand.Add(highlightCommand);
-
-var highlightOnCommand = new Command("on", "Highlight mode on");
-highlightOnCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SetHighlightModeAsync(true);
-    result.EnsureSuccessStatus();
-});
-highlightCommand.Add(highlightOnCommand);
-
-var highlightOffCommand = new Command("off", "Highlight mode off");
-highlightOffCommand.Handler = CommandHandler.Create(static async (string host) =>
-{
-    using var client = new DivoomClient(host);
-    var result = await client.SetHighlightModeAsync(false);
-    result.EnsureSuccessStatus();
-});
-highlightCommand.Add(highlightOffCommand);
 
 //--------------------------------------------------------------------------------
 // white
 //--------------------------------------------------------------------------------
 var whiteCommand = new Command("white", "Set white balance");
 whiteCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-whiteCommand.AddOption(new Option<int>(["--color", "-r"], "Red") { IsRequired = true });
+whiteCommand.AddOption(new Option<int>(["--red", "-r"], "Red") { IsRequired = true });
 whiteCommand.AddOption(new Option<int>(["--green", "-g"], "Green") { IsRequired = true });
 whiteCommand.AddOption(new Option<int>(["--blue", "-b"], "Blue") { IsRequired = true });
 whiteCommand.Handler = CommandHandler.Create(static async (string host, int red, int green, int blue) =>
@@ -780,6 +747,38 @@ whiteCommand.Handler = CommandHandler.Create(static async (string host, int red,
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(whiteCommand);
+
+//--------------------------------------------------------------------------------
+// rgb
+//--------------------------------------------------------------------------------
+var rgbCommand = new Command("rgb", "Set rgb mode");
+rgbCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rgbCommand.AddOption(new Option<int>(["--brightness", "-b"], () => 100, "Brightness"));
+rgbCommand.AddOption(new Option<string>(["--color", "-c"], () => "#000000", "Color"));
+rgbCommand.AddOption(new Option<string>(["--light", "-l"], () => "on", "Light switch").FromAmong("on", "off"));
+rgbCommand.AddOption(new Option<string>(["--key", "-k"], () => "on", "Keyboard light").FromAmong("on", "off"));
+rgbCommand.AddOption(new Option<string>(["--cycle", "-y"], () => "on", "Color cycle").FromAmong("on", "off"));
+rgbCommand.AddOption(new Option<string>(["--index", "-i"], () => "all", "Light index").FromAmong("all", "edge", "back"));
+rgbCommand.AddOption(new Option<string>(["--effect", "-e"], () => "0", "Color cycle"));
+rgbCommand.Handler = CommandHandler.Create(static async (string host, int brightness, string color, string light, string key, string cycle, string index, string effect) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SetRgbInformationAsync(
+        brightness,
+        color.StartsWith('#') ? color : "#" + color,
+        light == "on",
+        key == "on",
+        cycle == "on",
+        index switch
+        {
+            "edge" => LightIndex.Edge,
+            "back" => LightIndex.Backlight,
+            _ => LightIndex.All
+        },
+        effect.Split(',').Select(static x => Int32.Parse(x)));
+    result.EnsureSuccessStatus();
+});
+rootCommand.Add(rgbCommand);
 
 //--------------------------------------------------------------------------------
 // config

@@ -51,6 +51,13 @@ public enum RotationAngle
     Rotate270 = 3
 }
 
+public enum LightIndex
+{
+    All = 0,
+    Edge = 1,
+    Backlight = 2
+}
+
 public enum TextDirection
 {
     Left = 0,

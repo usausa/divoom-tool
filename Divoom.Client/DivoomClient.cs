@@ -442,6 +442,25 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
+    public async Task<DeviceResult> SetRgbInformationAsync(int brightness, string color, bool light, bool key, bool cycle, LightIndex index, IEnumerable<int> effect)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/SetRGBInfo",
+            Brightness = brightness,
+            Color = color,
+            OnOff = light ? 1 : 0,
+            KeyOnOff = key ? 1 : 0,
+            ColorCycle = cycle ? 1 : 0,
+            SelectLightIndex = (int)index,
+            LightList = effect.Select(static x => new { SelectEffect = x })
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
+
     public async Task<ConfigResult> GetAllConfigAsync()
     {
         using var request = CreateRequest(new
