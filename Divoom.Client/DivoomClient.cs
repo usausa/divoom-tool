@@ -220,7 +220,7 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<ClockResult>(json)!;
     }
 
-    public async Task<DeviceResult> SelectClockIdAsync(int clockId, int? lcdId, int? lcdIndex)
+    public async Task<DeviceResult> SelectClockIdAsync(int clockId, int? lcdId = null, int? lcdIndex = null)
     {
         using var request = CreateRequest(new
         {
@@ -239,12 +239,14 @@ public sealed class DivoomClient : IDisposable
     // Cloud
     //--------------------------------------------------------------------------------
 
-    public async Task<DeviceResult> SelectCloudIndexAsync(CloudIndex page)
+    public async Task<DeviceResult> SelectCloudIndexAsync(CloudIndex page, int? lcdId = null, int? lcdIndex = null)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/CloudIndex",
-            CustomPageIndex = (int)page
+            CustomPageIndex = (int)page,
+            LcdIndependence = lcdId,
+            LcdIndex = lcdIndex
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -256,7 +258,7 @@ public sealed class DivoomClient : IDisposable
     // Equalizer
     //--------------------------------------------------------------------------------
 
-    public async Task<DeviceResult> SelectEqualizerIdAsync(int position, int? lcdId, int? lcdIndex)
+    public async Task<DeviceResult> SelectEqualizerIdAsync(int position, int? lcdId = null, int? lcdIndex = null)
     {
         using var request = CreateRequest(new
         {
@@ -275,12 +277,14 @@ public sealed class DivoomClient : IDisposable
     // Custom
     //--------------------------------------------------------------------------------
 
-    public async Task<DeviceResult> SelectCustomPageAsync(int page)
+    public async Task<DeviceResult> SelectCustomPageAsync(int page, int? lcdId = null, int? lcdIndex = null)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/SetCustomPageIndex",
-            CustomPageIndex = page
+            CustomPageIndex = page,
+            LcdIndependence = lcdId,
+            LcdIndex = lcdIndex
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
