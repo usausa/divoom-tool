@@ -115,13 +115,13 @@ clockInfoCommand.Handler = CommandHandler.Create(static async (IConsole console,
 });
 clockCommand.Add(clockInfoCommand);
 
-// TODO option
 var clockSelectCommand = new Command("select", "Select clock");
 clockSelectCommand.AddOption(new Option<int>(["--clock", "-c"], "Clock id") { IsRequired = true });
-clockSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Independence id") { IsRequired = true });
+clockSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id") { IsRequired = true });
 clockSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int clock, int? lcd, int? index) =>
 {
+    // TODO auto id?
     using var client = new DivoomClient(host);
     var result = await client.SelectClockIdAsync(clock, lcd, index);
     result.EnsureSuccessStatus();
@@ -141,12 +141,13 @@ cloudCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(cloudCommand);
 
+// TODO ?
 var cloudSelectCommand = new Command("select", "Select cloud page");
-cloudSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Page index") { IsRequired = true });
-cloudSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
+cloudSelectCommand.AddOption(new Option<int>(["--page", "-p"], "Page index") { IsRequired = true });
+cloudSelectCommand.Handler = CommandHandler.Create(static async (string host, int page) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SelectCloudIndexAsync((CloudIndex)index);
+    var result = await client.SelectCloudIndexAsync((CloudIndex)page);
     result.EnsureSuccessStatus();
 });
 cloudCommand.Add(cloudSelectCommand);
@@ -166,11 +167,13 @@ rootCommand.Add(equalizerCommand);
 
 // TODO option
 var equalizerSelectCommand = new Command("select", "Select equalizer");
-equalizerSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Equalizer index") { IsRequired = true });
-equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
+equalizerSelectCommand.AddOption(new Option<int>(["--pos", "-p"], "Equalizer position") { IsRequired = true });
+equalizerSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id") { IsRequired = true });
+equalizerSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
+equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int pos, int? lcd, int? index) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SelectEqualizerIdAsync(index);
+    var result = await client.SelectEqualizerIdAsync(pos, lcd, index);
     result.EnsureSuccessStatus();
 });
 equalizerCommand.Add(equalizerSelectCommand);
@@ -188,12 +191,13 @@ customCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(customCommand);
 
+// TODO ?
 var customSelectCommand = new Command("select", "Select custom page");
-customSelectCommand.AddOption(new Option<int>(["--index", "-i"], "Page index") { IsRequired = true });
-customSelectCommand.Handler = CommandHandler.Create(static async (string host, int index) =>
+customSelectCommand.AddOption(new Option<int>(["--page", "-p"], "Page index") { IsRequired = true });
+customSelectCommand.Handler = CommandHandler.Create(static async (string host, int page) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SelectCustomPageAsync(index);
+    var result = await client.SelectCustomPageAsync(page);
     result.EnsureSuccessStatus();
 });
 customCommand.Add(customSelectCommand);
@@ -245,9 +249,10 @@ lcd5Command.Add(lcd5InfoCommand);
 var lcd5ChannelCommand = new Command("channel", "Set channel type");
 lcd5ChannelCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 lcd5ChannelCommand.AddOption(new Option<string>(["--type", "-t"], "Channel type") { IsRequired = true }.FromAmong("whole", "w", "independence", "i"));
-lcd5ChannelCommand.AddOption(new Option<int?>(["--id", "-i"], "Independence id"));
-lcd5ChannelCommand.Handler = CommandHandler.Create(static async (string host, string type, int? id) =>
+lcd5ChannelCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id"));
+lcd5ChannelCommand.Handler = CommandHandler.Create(static async (string host, string type, int? lcd) =>
 {
+    // TODO auto id?
     using var client = new DivoomClient(host);
     var result = await client.SetLcd5ChannelTypeAsync(
         type switch
@@ -255,7 +260,7 @@ lcd5ChannelCommand.Handler = CommandHandler.Create(static async (string host, st
             "whole" or "w" => Lcd5ChannelType.Whole,
             _ => Lcd5ChannelType.Independence
         },
-        id);
+        lcd);
     result.EnsureSuccessStatus();
 });
 lcd5Command.Add(lcd5ChannelCommand);

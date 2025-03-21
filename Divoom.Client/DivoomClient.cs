@@ -239,12 +239,12 @@ public sealed class DivoomClient : IDisposable
     // Cloud
     //--------------------------------------------------------------------------------
 
-    public async Task<DeviceResult> SelectCloudIndexAsync(CloudIndex index)
+    public async Task<DeviceResult> SelectCloudIndexAsync(CloudIndex page)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/CloudIndex",
-            CustomPageIndex = (int)index
+            CustomPageIndex = (int)page
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -256,12 +256,14 @@ public sealed class DivoomClient : IDisposable
     // Equalizer
     //--------------------------------------------------------------------------------
 
-    public async Task<DeviceResult> SelectEqualizerIdAsync(int index)
+    public async Task<DeviceResult> SelectEqualizerIdAsync(int position, int? lcdId, int? lcdIndex)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/SetEqPosition",
-            EqPosition = index
+            EqPosition = position,
+            LcdIndependence = lcdId,
+            LcdIndex = lcdIndex
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -273,12 +275,12 @@ public sealed class DivoomClient : IDisposable
     // Custom
     //--------------------------------------------------------------------------------
 
-    public async Task<DeviceResult> SelectCustomPageAsync(int index)
+    public async Task<DeviceResult> SelectCustomPageAsync(int page)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/SetCustomPageIndex",
-            CustomPageIndex = index
+            CustomPageIndex = page
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();

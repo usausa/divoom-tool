@@ -19,7 +19,7 @@ public enum IndexType
 public enum Lcd5ChannelType
 {
     Whole = 0,
-    Independence = 1,
+    Independence = 1
 }
 
 public enum CloudIndex
