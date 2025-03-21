@@ -240,9 +240,34 @@ lcd5InfoCommand.Handler = CommandHandler.Create(static async (IConsole console, 
 });
 lcd5Command.Add(lcd5InfoCommand);
 
-// TODO channel
-// TODO whole
+var lcd5ChannelCommand = new Command("channel", "Set channel type");
+lcd5ChannelCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+lcd5ChannelCommand.AddOption(new Option<string>(["--type", "-t"], "Channel type") { IsRequired = true }.FromAmong("whole", "w", "independence", "i"));
+lcd5ChannelCommand.AddOption(new Option<int?>(["--id", "-i"], "Independence id"));
+lcd5ChannelCommand.Handler = CommandHandler.Create(static async (string host, string type, int? id) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SetLcd5ChannelTypeAsync(
+        type switch
+        {
+            "whole" or "w" => Lcd5ChannelType.Whole,
+            _ => Lcd5ChannelType.Independence
+        },
+        id);
+    result.EnsureSuccessStatus();
+});
+lcd5Command.Add(lcd5ChannelCommand);
 
+var lcd5WholeCommand = new Command("whole", "Select whole clock");
+lcd5WholeCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+lcd5WholeCommand.AddOption(new Option<int>(["--id", "-i"], "Independence id"));
+lcd5WholeCommand.Handler = CommandHandler.Create(static async (string host, int id) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.SelectLcd5WholeClockIdIdAsync(id);
+    result.EnsureSuccessStatus();
+});
+lcd5Command.Add(lcd5WholeCommand);
 //--------------------------------------------------------------------------------
 // monitor
 //--------------------------------------------------------------------------------

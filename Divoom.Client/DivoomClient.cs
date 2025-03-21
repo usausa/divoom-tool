@@ -174,6 +174,37 @@ public sealed class DivoomClient : IDisposable
     }
 
     //--------------------------------------------------------------------------------
+    // Lcd5
+    //--------------------------------------------------------------------------------
+
+    public async Task<IndexResult> SetLcd5ChannelTypeAsync(Lcd5ChannelType channelType, int? id)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/Set5LcdChannelType",
+            ChannelType = (int)channelType,
+            LcdIndependence = id
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<IndexResult>(json)!;
+    }
+
+    public async Task<DeviceResult> SelectLcd5WholeClockIdIdAsync(int id)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Channel/Set5LcdWholeClockId",
+            ClockId = id
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
+
+    //--------------------------------------------------------------------------------
     // Clock
     //--------------------------------------------------------------------------------
 

@@ -16,6 +16,12 @@ public enum IndexType
     Custom = 3
 }
 
+public enum Lcd5ChannelType
+{
+    Whole = 0,
+    Independence = 1,
+}
+
 public enum CloudIndex
 {
     Recommend = 0,
