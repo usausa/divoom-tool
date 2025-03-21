@@ -117,11 +117,13 @@ clockCommand.Add(clockInfoCommand);
 
 // TODO option
 var clockSelectCommand = new Command("select", "Select clock");
-clockSelectCommand.AddOption(new Option<int>(["--id", "-i"], "Id") { IsRequired = true });
-clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int id) =>
+clockSelectCommand.AddOption(new Option<int>(["--clock", "-c"], "Clock id") { IsRequired = true });
+clockSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Independence id") { IsRequired = true });
+clockSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
+clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int clock, int? lcd, int? index) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SelectClockIdAsync(id);
+    var result = await client.SelectClockIdAsync(clock, lcd, index);
     result.EnsureSuccessStatus();
 });
 clockCommand.Add(clockSelectCommand);
@@ -260,11 +262,11 @@ lcd5Command.Add(lcd5ChannelCommand);
 
 var lcd5WholeCommand = new Command("whole", "Select whole clock");
 lcd5WholeCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-lcd5WholeCommand.AddOption(new Option<int>(["--id", "-i"], "Independence id"));
-lcd5WholeCommand.Handler = CommandHandler.Create(static async (string host, int id) =>
+lcd5WholeCommand.AddOption(new Option<int>(["--clock", "-c"], "Whole clock id"));
+lcd5WholeCommand.Handler = CommandHandler.Create(static async (string host, int clock) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SelectLcd5WholeClockIdIdAsync(id);
+    var result = await client.SelectLcd5WholeClockIdIdAsync(clock);
     result.EnsureSuccessStatus();
 });
 lcd5Command.Add(lcd5WholeCommand);
@@ -276,7 +278,7 @@ monitorCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { Is
 monitorCommand.Handler = CommandHandler.Create(static async (string host) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SelectClockIdAsync(625);
+    var result = await client.SelectClockIdAsync(625, null, null);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(monitorCommand);

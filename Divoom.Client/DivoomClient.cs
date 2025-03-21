@@ -177,13 +177,13 @@ public sealed class DivoomClient : IDisposable
     // Lcd5
     //--------------------------------------------------------------------------------
 
-    public async Task<IndexResult> SetLcd5ChannelTypeAsync(Lcd5ChannelType channelType, int? id)
+    public async Task<IndexResult> SetLcd5ChannelTypeAsync(Lcd5ChannelType channelType, int? lcdId)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/Set5LcdChannelType",
             ChannelType = (int)channelType,
-            LcdIndependence = id
+            LcdIndependence = lcdId
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -191,12 +191,12 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<IndexResult>(json)!;
     }
 
-    public async Task<DeviceResult> SelectLcd5WholeClockIdIdAsync(int id)
+    public async Task<DeviceResult> SelectLcd5WholeClockIdIdAsync(int clockId)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/Set5LcdWholeClockId",
-            ClockId = id
+            ClockId = clockId
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -220,12 +220,14 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<ClockResult>(json)!;
     }
 
-    public async Task<DeviceResult> SelectClockIdAsync(int id)
+    public async Task<DeviceResult> SelectClockIdAsync(int clockId, int? lcdId, int? lcdIndex)
     {
         using var request = CreateRequest(new
         {
             Command = "Channel/SetClockSelectId",
-            ClockId = id
+            ClockId = clockId,
+            LcdIndependence = lcdId,
+            LcdIndex = lcdIndex
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
