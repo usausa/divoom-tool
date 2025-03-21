@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 
 public sealed class MonitorParameter
 {
+    public int? Lcd { get; set; }
+
     public string CpuUsed { get; set; } = string.Empty;
 
     public string CpuTemperature { get; set; } = string.Empty;

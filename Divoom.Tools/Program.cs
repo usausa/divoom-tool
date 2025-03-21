@@ -121,6 +121,7 @@ clockSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence
 clockSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int clock, int? lcd, int? index) =>
 {
+    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectClockIdAsync(clock, lcd, index);
     result.EnsureSuccessStatus();
@@ -140,13 +141,13 @@ cloudCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(cloudCommand);
 
-// TODO ?
 var cloudSelectCommand = new Command("select", "Select cloud page");
 cloudSelectCommand.AddOption(new Option<int>(["--page", "-p"], "Page index") { IsRequired = true });
 cloudSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id") { IsRequired = true });
 cloudSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 cloudSelectCommand.Handler = CommandHandler.Create(static async (string host, int page, int? lcd, int? index) =>
 {
+    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectCloudIndexAsync((CloudIndex)page, lcd, index);
     result.EnsureSuccessStatus();
@@ -172,6 +173,7 @@ equalizerSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independ
 equalizerSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int pos, int? lcd, int? index) =>
 {
+    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectEqualizerIdAsync(pos, lcd, index);
     result.EnsureSuccessStatus();
@@ -191,13 +193,13 @@ customCommand.Handler = CommandHandler.Create(static async (string host) =>
 });
 rootCommand.Add(customCommand);
 
-// TODO ?
 var customSelectCommand = new Command("select", "Select custom page");
 customSelectCommand.AddOption(new Option<int>(["--page", "-p"], "Page index") { IsRequired = true });
 customSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id") { IsRequired = true });
 customSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 customSelectCommand.Handler = CommandHandler.Create(static async (string host, int page, int? lcd, int? index) =>
 {
+    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectCustomPageAsync(page, lcd, index);
     result.EnsureSuccessStatus();
@@ -254,7 +256,6 @@ lcd5ChannelCommand.AddOption(new Option<string>(["--type", "-t"], "Channel type"
 lcd5ChannelCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id"));
 lcd5ChannelCommand.Handler = CommandHandler.Create(static async (string host, string type, int? lcd) =>
 {
-    // TODO auto id?
     using var client = new DivoomClient(host);
     var result = await client.SetLcd5ChannelTypeAsync(
         type switch
@@ -277,39 +278,61 @@ lcd5WholeCommand.Handler = CommandHandler.Create(static async (string host, int 
     result.EnsureSuccessStatus();
 });
 lcd5Command.Add(lcd5WholeCommand);
+
 //--------------------------------------------------------------------------------
 // monitor
 //--------------------------------------------------------------------------------
 var monitorCommand = new Command("monitor", "Monitor");
 monitorCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-monitorCommand.Handler = CommandHandler.Create(static async (string host) =>
+monitorCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id") { IsRequired = true });
+monitorCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
+monitorCommand.Handler = CommandHandler.Create(static async (string host, int? lcd, int? index) =>
 {
+    // TODO lcd current ?
     using var client = new DivoomClient(host);
-    var result = await client.SelectClockIdAsync(625);
+    var result = await client.SelectClockIdAsync(625, lcd, index);
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(monitorCommand);
 
 var monitorUpdateCommand = new Command("update", "Update monitor");
-monitorUpdateCommand.AddOption(new Option<string>(["--data", "-d"], "Data") { IsRequired = true });
-monitorUpdateCommand.Handler = CommandHandler.Create(static async (string host, string data) =>
+monitorUpdateCommand.AddOption(new Option<string>(["--data", "-d"], () => string.Empty, "Data"));
+monitorUpdateCommand.AddOption(new Option<string>(["--data1", "-d1"], () => string.Empty, "Data1"));
+monitorUpdateCommand.AddOption(new Option<string>(["--data2", "-d2"], () => string.Empty, "Data2"));
+monitorUpdateCommand.AddOption(new Option<string>(["--data3", "-d3"], () => string.Empty, "Data3"));
+monitorUpdateCommand.AddOption(new Option<string>(["--data4", "-d4"], () => string.Empty, "Data4"));
+monitorUpdateCommand.AddOption(new Option<string>(["--data5", "-d5"], () => string.Empty, "Data5"));
+monitorUpdateCommand.Handler = CommandHandler.Create(static async (string host, string data, string data1, string data2, string data3, string data4, string data5) =>
 {
-    var values = data.Split(',');
+    var list = new List<MonitorParameter>();
+    AddParameter(list, null, data);
+    AddParameter(list, 0, data1);
+    AddParameter(list, 1, data2);
+    AddParameter(list, 2, data3);
+    AddParameter(list, 3, data4);
+    AddParameter(list, 4, data5);
 
     using var client = new DivoomClient(host);
-    var result = await client.UpdatePcMonitorAsync(
-    [
-        new MonitorParameter
-        {
-            CpuUsed = values.ElementAtOrDefault(0) ?? string.Empty,
-            GpuUsed = values.ElementAtOrDefault(1) ?? string.Empty,
-            CpuTemperature = values.ElementAtOrDefault(2) ?? string.Empty,
-            GpuTemperature = values.ElementAtOrDefault(3) ?? string.Empty,
-            MemoryUsed = values.ElementAtOrDefault(4) ?? string.Empty,
-            DiskTemperature = values.ElementAtOrDefault(5) ?? string.Empty
-        }
-    ]);
+    var result = await client.UpdatePcMonitorAsync(list);
     result.EnsureSuccessStatus();
+
+    void AddParameter(List<MonitorParameter> list, int? lcd, string data)
+    {
+        if (!String.IsNullOrEmpty(data))
+        {
+            var values = data.Split(',');
+            list.Add(new MonitorParameter
+            {
+                Lcd = lcd,
+                CpuUsed = values.ElementAtOrDefault(0) ?? string.Empty,
+                GpuUsed = values.ElementAtOrDefault(1) ?? string.Empty,
+                CpuTemperature = values.ElementAtOrDefault(2) ?? string.Empty,
+                GpuTemperature = values.ElementAtOrDefault(3) ?? string.Empty,
+                MemoryUsed = values.ElementAtOrDefault(4) ?? string.Empty,
+                DiskTemperature = values.ElementAtOrDefault(5) ?? string.Empty
+            });
+        }
+    }
 });
 monitorCommand.Add(monitorUpdateCommand);
 

@@ -303,7 +303,7 @@ public sealed class DivoomClient : IDisposable
             Command = "Device/UpdatePCParaInfo",
             ScreenList = parameters.Select(static x => new
             {
-                LcdId = default(string),
+                LcdId = x.Lcd,
                 DispData = new[] { x.CpuUsed, x.GpuUsed, x.CpuTemperature, x.GpuTemperature, x.MemoryUsed, x.DiskTemperature }
             })
         });
