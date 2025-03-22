@@ -644,12 +644,13 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<DeviceResult> SendRemoteAsync(string fileId)
+    public async Task<DeviceResult> SendRemoteAsync(string fileId, int[]? array)
     {
         using var request = CreateRequest(new
         {
             Command = "Draw/SendRemote",
-            FileId = fileId
+            FileId = fileId,
+            LcdArray = array
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();

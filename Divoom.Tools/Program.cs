@@ -571,10 +571,13 @@ remoteCommand.Add(remoteLikeCommand);
 var remoteDrawCommand = new Command("draw", "Draw remote image");
 remoteDrawCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
 remoteDrawCommand.AddOption(new Option<string>(["--id", "-i"], "File id") { IsRequired = true });
-remoteDrawCommand.Handler = CommandHandler.Create(static async (string host, string id) =>
+remoteDrawCommand.AddOption(new Option<string>(["--array", "-a"], "Lcd array"));
+remoteDrawCommand.Handler = CommandHandler.Create(static async (string host, string id, string array) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.SendRemoteAsync(id);
+    var result = await client.SendRemoteAsync(
+        id,
+        !String.IsNullOrEmpty(array) ? array.ToCharArray().Select(static x => Int32.Parse(x.ToString())).ToArray() : null);
     result.EnsureSuccessStatus();
 });
 remoteCommand.Add(remoteDrawCommand);
@@ -857,7 +860,7 @@ rgbCommand.Handler = CommandHandler.Create(static async (string host, int bright
             "back" => LightIndex.Backlight,
             _ => LightIndex.All
         },
-        effect.Split(',').Select(static x => Int32.Parse(x)));
+        effect.Split(',').Select(Int32.Parse));
     result.EnsureSuccessStatus();
 });
 rootCommand.Add(rgbCommand);
