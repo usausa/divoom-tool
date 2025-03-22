@@ -287,3 +287,7 @@ divoom hour -h 192.168.1.101 -m 24
 ```
 divoom reboot -h 192.168.1.101
 ```
+
+# Reference
+
+https://docin.divoom-gz.com/web/#/5/23

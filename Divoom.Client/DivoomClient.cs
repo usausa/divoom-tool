@@ -730,13 +730,44 @@ public sealed class DivoomClient : IDisposable
         return JsonSerializer.Deserialize<DeviceResult>(json)!;
     }
 
-    public async Task<DeviceResult> PlayGif(PlayFileType fileType, string fileName)
+    public async Task<DeviceResult> PlayGifAsync(PlayFileType fileType, string fileName)
     {
         using var request = CreateRequest(new
         {
             Command = "Device/PlayTFGif",
             FileType = (int)fileType,
             FileName = fileName
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
+
+    public async Task<DeviceResult> PlayGifArrayAsync(int[] array, string[] urls)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/PlayGif",
+            LcdArray = array,
+            FileName = urls
+        });
+        var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<DeviceResult>(json)!;
+    }
+
+    public async Task<DeviceResult> PlayGifAllLcdAsync(string[] lcd1, string[] lcd2, string[] lcd3, string[] lcd4, string[] lcd5)
+    {
+        using var request = CreateRequest(new
+        {
+            Command = "Device/PlayGifLCDs",
+            LCD0GifFile = lcd1,
+            LCD1GifFile = lcd2,
+            LCD2GifFile = lcd3,
+            LCD3GifFile = lcd4,
+            LCD4GifFile = lcd5
         });
         var response = await client.PostAsync(PostUrl, request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();

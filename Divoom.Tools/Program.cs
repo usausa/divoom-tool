@@ -55,7 +55,6 @@ currentCommand.Handler = CommandHandler.Create(static async (IConsole console, s
     var result = await client.GetChannelIndexAsync();
     result.EnsureSuccessStatus();
 
-    // TODO extra?
     console.WriteLine(result.Indexes.Length > 0 ? $"Index: {String.Join(',', result.Indexes.Select(static x => (IndexType)x))}" : $"Index: {(IndexType)result.Index}");
 });
 rootCommand.Add(currentCommand);
@@ -117,11 +116,10 @@ clockCommand.Add(clockInfoCommand);
 
 var clockSelectCommand = new Command("select", "Select clock");
 clockSelectCommand.AddOption(new Option<int>(["--clock", "-c"], "Clock id") { IsRequired = true });
-clockSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id") { IsRequired = true });
-clockSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
+clockSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id"));
+clockSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index"));
 clockSelectCommand.Handler = CommandHandler.Create(static async (string host, int clock, int? lcd, int? index) =>
 {
-    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectClockIdAsync(clock, lcd, index);
     result.EnsureSuccessStatus();
@@ -147,7 +145,6 @@ cloudSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence
 cloudSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 cloudSelectCommand.Handler = CommandHandler.Create(static async (string host, int page, int? lcd, int? index) =>
 {
-    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectCloudIndexAsync((CloudIndex)page, lcd, index);
     result.EnsureSuccessStatus();
@@ -173,7 +170,6 @@ equalizerSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independ
 equalizerSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 equalizerSelectCommand.Handler = CommandHandler.Create(static async (string host, int pos, int? lcd, int? index) =>
 {
-    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectEqualizerIdAsync(pos, lcd, index);
     result.EnsureSuccessStatus();
@@ -199,7 +195,6 @@ customSelectCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independenc
 customSelectCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 customSelectCommand.Handler = CommandHandler.Create(static async (string host, int page, int? lcd, int? index) =>
 {
-    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectCustomPageAsync(page, lcd, index);
     result.EnsureSuccessStatus();
@@ -288,7 +283,6 @@ monitorCommand.AddOption(new Option<int?>(["--lcd", "-l"], "Lcd independence id"
 monitorCommand.AddOption(new Option<int?>(["--index", "-i"], "Lcd index") { IsRequired = true });
 monitorCommand.Handler = CommandHandler.Create(static async (string host, int? lcd, int? index) =>
 {
-    // TODO lcd current ?
     using var client = new DivoomClient(host);
     var result = await client.SelectClockIdAsync(625, lcd, index);
     result.EnsureSuccessStatus();
@@ -656,14 +650,17 @@ rootCommand.Add(displayCommand);
 //--------------------------------------------------------------------------------
 // gif
 //--------------------------------------------------------------------------------
-var gifCommand = new Command("gif", "Play gif");
+var gifCommand = new Command("gif", "Gif animation");
 gifCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
-gifCommand.AddOption(new Option<string>(["--type", "-t"], "File type") { IsRequired = true }.FromAmong("n", "net", "d", "directory", "f", "file"));
-gifCommand.AddOption(new Option<string>(["--name", "-n"], "File name") { IsRequired = true });
-gifCommand.Handler = CommandHandler.Create(static async (string host, string type, string name) =>
+rootCommand.Add(gifCommand);
+
+var gifPlayCommand = new Command("play", "Play gif image");
+gifPlayCommand.AddOption(new Option<string>(["--type", "-t"], "File type") { IsRequired = true }.FromAmong("n", "net", "d", "directory", "f", "file"));
+gifPlayCommand.AddOption(new Option<string>(["--name", "-n"], "File name") { IsRequired = true });
+gifPlayCommand.Handler = CommandHandler.Create(static async (string host, string type, string name) =>
 {
     using var client = new DivoomClient(host);
-    var result = await client.PlayGif(
+    var result = await client.PlayGifAsync(
         type switch
         {
             "d" or "directory" => PlayFileType.Folder,
@@ -673,7 +670,39 @@ gifCommand.Handler = CommandHandler.Create(static async (string host, string typ
         name);
     result.EnsureSuccessStatus();
 });
-rootCommand.Add(gifCommand);
+gifCommand.Add(gifPlayCommand);
+
+var gifArrayCommand = new Command("array", "Play gif array");
+gifArrayCommand.AddOption(new Option<string>(["--array", "-a"], "Lcd array") { IsRequired = true });
+gifArrayCommand.AddOption(new Option<string>(["--urls", "-u"], "File url") { IsRequired = true });
+gifArrayCommand.Handler = CommandHandler.Create(static async (string host, string array, string urls) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.PlayGifArrayAsync(
+        array.ToCharArray().Select(static x => Int32.Parse(x.ToString())).ToArray(),
+        urls.Split(','));
+    result.EnsureSuccessStatus();
+});
+gifCommand.Add(gifArrayCommand);
+
+var gifAllCommand = new Command("all", "Play gif all lcd");
+gifAllCommand.AddOption(new Option<string>(["--lcd1", "-l1"], "Lcd1 files") { IsRequired = true });
+gifAllCommand.AddOption(new Option<string>(["--lcd2", "-l2"], "Lcd2 files") { IsRequired = true });
+gifAllCommand.AddOption(new Option<string>(["--lcd3", "-l3"], "Lcd3 files") { IsRequired = true });
+gifAllCommand.AddOption(new Option<string>(["--lcd4", "-l4"], "Lcd4 files") { IsRequired = true });
+gifAllCommand.AddOption(new Option<string>(["--lcd5", "-l5"], "Lcd5 files") { IsRequired = true });
+gifAllCommand.Handler = CommandHandler.Create(static async (string host, string lcd1, string lcd2, string lcd3, string lcd4, string lcd5) =>
+{
+    using var client = new DivoomClient(host);
+    var result = await client.PlayGifAllLcdAsync(
+        lcd1.Split(','),
+        lcd2.Split(','),
+        lcd3.Split(','),
+        lcd4.Split(','),
+        lcd5.Split(','));
+    result.EnsureSuccessStatus();
+});
+gifCommand.Add(gifAllCommand);
 
 //--------------------------------------------------------------------------------
 // time
