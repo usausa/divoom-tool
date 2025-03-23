@@ -13,7 +13,7 @@ dotnet tool install -g DivoomTool
 ## Service
 
 | Command | Pixoo64 | Times Gate | Description |
-|:-|:-:|:-:|
+|:-|:-:|:-:|:-|
 | device | ✅ | ✅ | Get LAN device list |
 | font | ✅ | ✅ | Get supported font list |
 
@@ -29,7 +29,7 @@ divoom font
 ## Channel
 
 | Command | Pixoo64 | Times Gate | Description |
-|:-|:-:|:-:|
+|:-|:-:|:-:|:-|
 | current | ✅ | ✅ | Get current channel |
 | channel | ✅ | | Set channel type |
 | lcd5 list | | ✅ | Get lcd whole list |
@@ -119,7 +119,7 @@ divoom monitor update -h 192.168.100.181 -d "50 %,10 %,60 C,35 C,40 %,45 C"
 ## Tool
 
 | Command | Pixoo64 | Times Gate | Description |
-|:-|:-:|:-:|
+|:-|:-:|:-:|:-|
 | timer | ✅ | ✅ | Timer tool |
 | watch | ✅ | ✅ | Stopwatch tool |
 | score | ✅ | ✅ | Scoreboard tool |
@@ -145,74 +145,44 @@ dovoom noise start -h 192.168.100.181
 dovoom noise stop -h 192.168.100.181
 ```
 
-
-----------
-
 ## Image/Text
 
-### Reset image id
+| Command | Pixoo64 | Times Gate | Description |
+|:-|:-:|:-:|:-|
+| image reset | ✅ | | Reset image id |
+| image id | ✅ | | Get image id |
+| image draw | ✅ | | Draw image |
+| image fill | ✅ | | Fill image |
+
+
+
+
 
 ```
-divoom image reset -h 192.168.1.101
+divoom image reset -h 192.168.100.181
 ```
 
-### Get image id
-
 ```
-divoom image id -h 192.168.1.101
+divoom image id -h 192.168.100.181
 ```
 
-### Draw image
-
 ```
-divoom image draw -h 192.168.1.101 -f cat.png
+divoom image draw -f safety_meme_cat.png -h 192.168.100.181
 ```
 
-### Fill image
-
 ```
-divoom image fill -h 192.168.1.101 -c #000000
+divoom image fill -h 192.168.100.181 -c #808080
 ```
 
-### List upload images
 
-(TODO)
 
-### List like images
 
-(TODO)
 
-### Draw remote image
-
-(TODO)
-
-### Draw text
-
-(TODO)
-
-### Display item list
+----------
 
 ```
 divoom display -h 192.168.1.101 -f items.json
 ```
-
-```json
-{
-    ...
-}
-```
-
-### Play gif
-
-(TODO)
-
-
-
-## Device
-
-### Get/Set device time
-
-(TODO)
 
 ### Get device weather
 
@@ -224,74 +194,6 @@ divoom weather -h 192.168.1.101
 
 ```
 divoom buzzer -h 192.168.1.101 -a 500 -f 500 -t 3000
-```
-
-### Screen switch
-
-(TODO)
-
-### Set brightness
-
-(TODO)
-
-### Set rotation
-
-(TODO)
-
-### Set mirror mode
-
-(TODO)
-
-### Set highlight mode
-
-(TODO)
-
-### Set white balance
-
-(TODO)
-
-
-
-## Config
-
-### Get all config
-
-```
-divoom config -h 192.168.1.101
-```
-
-### Set area
-
-```
-divoom area -h 192.168.1.101 --lon 138.608 --lat 35.616
-```
-
-### Set timezone
-
-```
-divoom timezone -h 192.168.1.101 -z GMT+9
-```
-
-### Set temperature mode
-
-```
-divoom temperature -h 192.168.1.101 -m c
-```
-
-### Set hour mode
-
-```
-divoom hour -h 192.168.1.101 -m 24
-```
-
-
-
-## System
-
-### Reboot
-
-```
-divoom reboot -h 192.168.1.101
 ```
 
 # Reference
