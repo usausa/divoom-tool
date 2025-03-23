@@ -1,5 +1,7 @@
 # Divoom client tool for Pixoo-64
 
+<img src="Images/image.jpg" title="image">
+
 # Install
 
 ```
@@ -10,137 +12,141 @@ dotnet tool install -g DivoomTool
 
 ## Service
 
-### Get LAN device list
+| Command | Pixoo64 | Times Gate | Description |
+|:-|:-:|:-:|
+| device | ✅ | ✅ | Get LAN device list |
+| font | ✅ | ✅ | Get supported font list |
+
 
 ```
 divoom device
 ```
 
-### Get supported font list
-
 ```
 divoom font
 ```
 
-### Get dial type
-
-```
-divoom dial type
-```
-
-### Get dial list
-
-(TODO)
-
-
-
 ## Channel
 
-### Get current channel
+| Command | Pixoo64 | Times Gate | Description |
+|:-|:-:|:-:|
+| current | ✅ | ✅ | Get current channel |
+| channel | ✅ | | Set channel type |
+| lcd5 list | | ✅ | Get lcd whole list |
+| lcd5 info | | ✅ | Get lcd independence information |
+| lcd5 channel | | ✅ | Set channel type |
+| lcd5 whole | | ✅ | Select whole clock |
+| clock type | ✅ | ✅ | Get clock type |
+| clock list | ✅ | ✅ | Get clock list |
+| clock info | ✅ | | Show clock information |
+| clock select | ✅ | ✅ | Select clock |
+| cloud select | ✅ | | Select cloud page |
+| equalizer select | ✅ | ✅ | Select equalizer |
+| cuscom select | ✅ | | Select custom page |
+| monitor select | ✅ | ✅ | Select monitor |
+| monitor update | ✅ | ✅ | Update monitor |
 
 ```
-divoom cunnel -h 192.168.1.101
-```
-
-### Clock channel
-
-```
-divoom clock -h 192.168.1.101
-```
-
-```
-divoom clock info -h 192.168.1.101
-```
-
-```
-divoom clock select -h 192.168.1.101 -i 182
-```
-
-### Cloud channel
-
-```
-divoom cloud -h 192.168.1.101
+divoom current -h 192.168.100.181
 ```
 
 ```
-divoom cloud select -h 192.168.1.101 -p 1
-```
-
-### Equalizer channel
-
-```
-divoom equalizer -h 192.168.1.101
+divoom channel -h 192.168.100.181 -t clock
+divoom channel -h 192.168.100.181 -t cloud
+divoom channel -h 192.168.100.181 -t equalizer
+divoom channel -h 192.168.100.181 -t custom
 ```
 
 ```
-divoom equalizer select -h 192.168.1.101 -p 1
-```
-
-### Custom channel
-
-```
-divoom custom -h 192.168.1.101
+divoom lcd5 list -p 1
 ```
 
 ```
-divoom custom select -h 192.168.1.101 -p 1
-```
-
-### Monitor
-
-```
-divoom monitor -h 192.168.1.101
+divoom lcd5 info
 ```
 
 ```
-divoom monitor yodate -h 192.168.1.101 -d "50 %,10 %,60 C,35 C,40 %,45 C"
+divoom lcd5 info -d 300000000
 ```
 
+```
+divoom lcd5 channel -h 192.168.100.182 -t w
+divoom lcd5 channel -h 192.168.100.182 -t i -l 400000
+```
 
+```
+divoom lcd5 whole -h 192.168.100.182 -c 581
+```
+
+```
+divoom clock type
+```
+
+```
+divoom clock list -t Game -p 1
+divoom clock list -t Game -l -p 1
+```
+
+```
+divoom clock info -h 192.168.100.181
+```
+
+```
+divoom clock select -h 192.168.100.181 -c 625
+divoom clock select -h 192.168.100.182 -c 625 -l 400000 -i 3
+```
+
+```
+divoom cloud select -h 192.168.100.181 -p 3
+```
+
+```
+divoom equalizer select -h 192.168.100.181 -p 5
+```
+
+```
+divoom custom select -h 192.168.100.181 -p 1
+```
+
+```
+divoom monitor select -h 192.168.100.181
+```
+
+```
+divoom monitor update -h 192.168.100.181 -d "50 %,10 %,60 C,35 C,40 %,45 C"
+```
 
 ## Tool
 
-### Timer tool
+| Command | Pixoo64 | Times Gate | Description |
+|:-|:-:|:-:|
+| timer | ✅ | ✅ | Timer tool |
+| watch | ✅ | ✅ | Stopwatch tool |
+| score | ✅ | ✅ | Scoreboard tool |
+| noise | ✅ | ✅ | Noise status tool |
 
 ```
-divoom timer start -h 192.168.1.101 -s 30
-```
-
-```
-divoom timer stop -h 192.168.1.101
-```
-
-### Stopwatch tool
-
-```
-divoom watch start -h 192.168.1.101
+dovoom timer start -h 192.168.100.181 -s 30
+dovoom timer stop -h 192.168.100.181
 ```
 
 ```
-divoom watch stop -h 192.168.1.101
+dovoom watch start -h 192.168.100.182
+dovoom watch stop -h 192.168.100.182
+dovoom watch reset -h 192.168.100.182
 ```
 
 ```
-divoom watch reset -h 192.168.1.101
-```
-
-### Scoreboard tool
-
-```
-divoom score -h 192.168.1.101 -b 123 -r 456
-```
-
-### Noise tool
-
-```
-divoom noise start -h 192.168.1.101
+dovoom score -h 192.168.100.181 -r 123 -b 456
 ```
 
 ```
-divoom noise stop -h 192.168.1.101
+dovoom noise start -h 192.168.100.181
+dovoom noise stop -h 192.168.100.181
 ```
 
 
+----------
 
 ## Image/Text
 
