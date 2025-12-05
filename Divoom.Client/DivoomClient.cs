@@ -12,7 +12,8 @@ public sealed class DivoomClient : IDisposable
 
     public DivoomClient(string host)
     {
-        client.BaseAddress = new Uri($"http://{host}:80");
+        var builder = new UriBuilder("http", host, 80);
+        client.BaseAddress = builder.Uri;
     }
 
     public void Dispose()

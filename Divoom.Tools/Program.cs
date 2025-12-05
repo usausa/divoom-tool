@@ -486,7 +486,7 @@ imageDrawCommand.Handler = CommandHandler.Create(static async (string host, int?
     {
         for (var x = 0; x < bitmap.Width; x++)
         {
-            var span = buffer.AsSpan(((y * bitmap.Height) + x) * 3);
+            var span = buffer.AsSpan(((y * bitmap.Width) + x) * 3);
             var c = bitmap.GetPixel(x, y);
             span[0] = c.Red;
             span[1] = c.Green;
