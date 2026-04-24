@@ -1298,6 +1298,7 @@ public sealed class ConfigCommand : BaseHostCommand, ICommandHandler
         Show("GyrateAngle", result.GyrateAngle);
         Show("Mirror", result.Mirror, static x => x == 1 ? "enable" : "disable");
         Show("LightSwitch", result.LightSwitch, static x => x == 1 ? "on" : "off");
+        return;
 
         static void Show<T>(string name, T? value, Func<T, object>? converter = null)
         {
