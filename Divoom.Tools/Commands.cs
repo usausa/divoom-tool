@@ -1299,7 +1299,7 @@ public sealed class ConfigCommand : BaseHostCommand, ICommandHandler
         Show("Mirror", result.Mirror, static x => x == 1 ? "enable" : "disable");
         Show("LightSwitch", result.LightSwitch, static x => x == 1 ? "on" : "off");
 
-        void Show<T>(string name, T? value, Func<T, object>? converter = null)
+        static void Show<T>(string name, T? value, Func<T, object>? converter = null)
         {
             if (value is not null)
             {
