@@ -324,7 +324,7 @@ public sealed class ClockListCommand : ICommandHandler
 
     public async ValueTask ExecuteAsync(CommandContext context)
     {
-        var result = await DivoomClient.GeClockListAsync(Type, Lcd ? "LCD" : null, Page);
+        var result = await DivoomClient.GetClockListAsync(Type, Lcd ? "LCD" : null, Page);
         result.EnsureSuccessStatus();
 
         Console.WriteLine($"Total: {result.Total}");
