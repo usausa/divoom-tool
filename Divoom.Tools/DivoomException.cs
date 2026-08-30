@@ -1,6 +1,5 @@
 namespace Divoom.Tools;
 
-#pragma warning disable CA1032
 internal sealed class DivoomException : Exception
 {
     public DivoomException(string message)
@@ -8,4 +7,3 @@ internal sealed class DivoomException : Exception
     {
     }
 }
-#pragma warning restore CA1032
