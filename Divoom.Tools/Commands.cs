@@ -200,9 +200,7 @@ public sealed class ChannelCommand : BaseHostCommand, ICommandHandler
 // lcd5
 //--------------------------------------------------------------------------------
 [Command("lcd5", "Get lcd whole information")]
-public sealed class Lcd5Command
-{
-}
+public sealed class Lcd5Command;
 
 [Command("list", "Get lcd whole list")]
 public sealed class Lcd5ListCommand : ICommandHandler
@@ -291,9 +289,7 @@ public sealed class Lcd5WholeCommand : BaseHostCommand, ICommandHandler
 // clock
 //--------------------------------------------------------------------------------
 [Command("clock", "Clock channel")]
-public sealed class ClockCommand
-{
-}
+public sealed class ClockCommand;
 
 [Command("type", "Get clock type")]
 public sealed class ClockTypeCommand : ICommandHandler
@@ -373,9 +369,7 @@ public sealed class ClockSelectCommand : BaseHostCommand, ICommandHandler
 // cloud
 //--------------------------------------------------------------------------------
 [Command("cloud", "Cloud channel")]
-public sealed class CloudCommand
-{
-}
+public sealed class CloudCommand;
 
 [Command("select", "Select cloud page")]
 public sealed class CloudSelectCommand : BaseHostCommand, ICommandHandler
@@ -401,9 +395,7 @@ public sealed class CloudSelectCommand : BaseHostCommand, ICommandHandler
 // equalizer
 //--------------------------------------------------------------------------------
 [Command("equalizer", "Equalizer channel")]
-public sealed class EqualizerCommand
-{
-}
+public sealed class EqualizerCommand;
 
 [Command("select", "Select equalizer")]
 public sealed class EqualizerSelectCommand : BaseHostCommand, ICommandHandler
@@ -429,9 +421,7 @@ public sealed class EqualizerSelectCommand : BaseHostCommand, ICommandHandler
 // custom
 //--------------------------------------------------------------------------------
 [Command("custom", "Custom channel")]
-public sealed class CustomCommand
-{
-}
+public sealed class CustomCommand;
 
 [Command("select", "Select custom page")]
 public sealed class CustomSelectCommand : BaseHostCommand, ICommandHandler
@@ -457,9 +447,7 @@ public sealed class CustomSelectCommand : BaseHostCommand, ICommandHandler
 // monitor
 //--------------------------------------------------------------------------------
 [Command("monitor", "Monitor")]
-public sealed class MonitorCommand
-{
-}
+public sealed class MonitorCommand;
 
 [Command("select", "Select monitor")]
 public sealed class MonitorSelectCommand : BaseHostCommand, ICommandHandler
@@ -537,9 +525,7 @@ public sealed class MonitorUpdateCommand : BaseHostCommand, ICommandHandler
 // timer
 //--------------------------------------------------------------------------------
 [Command("timer", "Timer tool")]
-public sealed class TimerCommand
-{
-}
+public sealed class TimerCommand;
 
 [Command("start", "Start timer")]
 public sealed class TimerStartCommand : BaseHostCommand, ICommandHandler
@@ -570,9 +556,7 @@ public sealed class TimerStopCommand : BaseHostCommand, ICommandHandler
 // watch
 //--------------------------------------------------------------------------------
 [Command("watch", "Stopwatch tool")]
-public sealed class WatchCommand
-{
-}
+public sealed class WatchCommand;
 
 [Command("start", "Start stopwatch")]
 public sealed class WatchStartCommand : BaseHostCommand, ICommandHandler
@@ -632,9 +616,7 @@ public sealed class ScoreCommand : BaseHostCommand, ICommandHandler
 // noise
 //--------------------------------------------------------------------------------
 [Command("noise", "Noise status tool")]
-public sealed class NoiseCommand
-{
-}
+public sealed class NoiseCommand;
 
 [Command("start", "Start noise tool")]
 public sealed class NoiseStartCommand : BaseHostCommand, ICommandHandler
@@ -662,9 +644,7 @@ public sealed class NoiseStopCommand : BaseHostCommand, ICommandHandler
 // image
 //--------------------------------------------------------------------------------
 [Command("image", "Image tool")]
-public sealed class ImageCommand
-{
-}
+public sealed class ImageCommand;
 
 [Command("reset", "Reset image id")]
 public sealed class ImageResetCommand : BaseHostCommand, ICommandHandler
@@ -775,9 +755,7 @@ public sealed class ImageFillCommand : BaseHostCommand, ICommandHandler
 // remote
 //--------------------------------------------------------------------------------
 [Command("remote", "Remote image")]
-public sealed class RemoteCommand
-{
-}
+public sealed class RemoteCommand;
 
 [Command("list", "List upload images")]
 public sealed class RemoteListCommand : ICommandHandler
@@ -850,9 +828,7 @@ public sealed class RemoteDrawCommand : BaseHostCommand, ICommandHandler
 // text
 //--------------------------------------------------------------------------------
 [Command("text", "Text tool")]
-public sealed class TextCommand
-{
-}
+public sealed class TextCommand;
 
 [Command("draw", "Draw text")]
 public sealed class TextDrawCommand : BaseHostCommand, ICommandHandler
@@ -949,9 +925,7 @@ public sealed class DisplayCommand : BaseHostCommand, ICommandHandler
 // gif
 //--------------------------------------------------------------------------------
 [Command("gif", "Gif animation")]
-public sealed class GifCommand
-{
-}
+public sealed class GifCommand;
 
 [Command("play", "Play gif image")]
 public sealed class GifPlayCommand : BaseHostCommand, ICommandHandler
