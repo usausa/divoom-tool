@@ -819,7 +819,7 @@ public sealed class RemoteDrawCommand : BaseHostCommand, ICommandHandler
         using var client = new DivoomClient(Host);
         var result = await client.SendRemoteAsync(
             Id,
-            !String.IsNullOrEmpty(Array) ? Array.ToCharArray().Select(static x => Int32.Parse(x.ToString())).ToArray() : null);
+            !String.IsNullOrEmpty(Array) ? [.. Array.ToCharArray().Select(static x => Int32.Parse(x.ToString()))] : null);
         result.EnsureSuccessStatus();
     }
 }
@@ -964,7 +964,7 @@ public sealed class GifArrayCommand : BaseHostCommand, ICommandHandler
     {
         using var client = new DivoomClient(Host);
         var result = await client.PlayGifArrayAsync(
-            Array.ToCharArray().Select(static x => Int32.Parse(x.ToString())).ToArray(),
+            [.. Array.ToCharArray().Select(static x => Int32.Parse(x.ToString()))],
             Urls.Split(','));
         result.EnsureSuccessStatus();
     }
