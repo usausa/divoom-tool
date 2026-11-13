@@ -1023,7 +1023,7 @@ public sealed class TimeCommand : BaseHostCommand, ICommandHandler
         }
         else
         {
-            var utc = Time == "auto" ? DateTimeOffset.UtcNow : DateTimeOffset.Parse(Time).ToUniversalTime();
+            var utc = Time == "auto" ? DateTimeOffset.UtcNow : DateTimeOffset.Parse(Time, CultureInfo.InvariantCulture).ToUniversalTime();
 
             var result = await client.ConfigSystemTimeAsync(utc);
             result.EnsureSuccessStatus();
