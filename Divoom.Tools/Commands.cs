@@ -1207,7 +1207,7 @@ public sealed class RgbCommand : BaseHostCommand, ICommandHandler
     [Option<string>("--light", "-l", Description = "Light switch", DefaultValue = "on", Completions = ["on", "off"])]
     public string Light { get; set; } = default!;
 
-    [Option<string>("--light", "-l", Description = "Keyboard light", DefaultValue = "on", Completions = ["on", "off"])]
+    [Option<string>("--key", "-k", Description = "Keyboard light", DefaultValue = "on", Completions = ["on", "off"])]
     public string Key { get; set; } = default!;
 
     [Option<string>("--cycle", "-y", Description = "Color cycle", DefaultValue = "on", Completions = ["on", "off"])]
